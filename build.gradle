@@ -96,7 +96,7 @@ allprojects { subproj ->
 	apply plugin: 'com.diffplug.gradle.spotless'
 	apply plugin: 'checkstyle'
 	apply plugin: 'com.github.ben-manes.versions' // gradle dependencyUpdates
-	apply from: "$rootDir/gradle/degraph.gradle"
+	apply plugin: 'org.junit.degraph'
 
 	if (project.hasProperty('enableJaCoCo')) {
 		apply plugin: 'jacoco'
