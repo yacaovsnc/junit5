@@ -243,6 +243,15 @@ public interface Node<C extends EngineExecutionContext> {
 		 */
 		void execute(TestDescriptor testDescriptor);
 
+		/**
+		 * Register a dynamic test descriptor for execution after the
+		 * {@link #execute(EngineExecutionContext, DynamicTestExecutor)} method
+		 * of the submitting test descriptor returns.
+		 *
+		 * @param testDescriptor the test descriptor to be registered
+		 */
+		void register(TestDescriptor testDescriptor);
+
 	}
 
 	/**

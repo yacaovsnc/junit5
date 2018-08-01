@@ -11,6 +11,7 @@
 package org.junit.platform.engine.support.hierarchical;
 
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 import static org.junit.platform.engine.TestExecutionResult.failed;
 
 import java.util.ArrayList;
@@ -128,11 +129,31 @@ class NodeTestTask<C extends EngineExecutionContext> implements TestTask {
 			context = node.before(context);
 
 			List<Future<?>> futures = new ArrayList<>();
-			context = node.execute(context,
-				dynamicTestDescriptor -> executeDynamicTest(dynamicTestDescriptor, futures));
+			List<TestDescriptor> remainingDynamicTests = new ArrayList<>();
+			context = node.execute(context, new Node.DynamicTestExecutor() {
+				@Override
+				public void execute(TestDescriptor dynamicTestDescriptor) {
+					listener.dynamicTestRegistered(dynamicTestDescriptor);
+					prepareDynamicTestForExecution(dynamicTestDescriptor).ifPresent(child -> {
+						child.setParentContext(context);
+						futures.add(executorService.submit(child));
+					});
+				}
 
-			children.forEach(child -> child.setParentContext(context));
-			executorService.invokeAll(children);
+				@Override
+				public void register(TestDescriptor dynamicTestDescriptor) {
+					listener.dynamicTestRegistered(dynamicTestDescriptor);
+					remainingDynamicTests.add(dynamicTestDescriptor);
+				}
+			});
+
+			if (!remainingDynamicTests.isEmpty()) {
+				executeRemainingDynamicTests(remainingDynamicTests);
+			}
+
+			if (!children.isEmpty()) {
+				prepareAndInvokeAll(this.children);
+			}
 
 			// using a for loop for the sake for ForkJoinPool's work stealing
 			for (Future<?> future : futures) {
@@ -143,8 +164,20 @@ class NodeTestTask<C extends EngineExecutionContext> implements TestTask {
 		throwableCollector.execute(() -> node.after(context));
 	}
 
-	private void executeDynamicTest(TestDescriptor dynamicTestDescriptor, List<Future<?>> futures) {
-		listener.dynamicTestRegistered(dynamicTestDescriptor);
+	private void executeRemainingDynamicTests(List<TestDescriptor> descriptors) {
+		// @ formatter:off
+		prepareAndInvokeAll(
+			descriptors.stream().map(this::prepareDynamicTestForExecution).filter(Optional::isPresent).map(
+				Optional::get).collect(toList()));
+		// @ formatter:on
+	}
+
+	private void prepareAndInvokeAll(List<NodeTestTask<C>> tasks) {
+		tasks.forEach(child -> child.setParentContext(context));
+		executorService.invokeAll(tasks);
+	}
+
+	private Optional<NodeTestTask<C>> prepareDynamicTestForExecution(TestDescriptor dynamicTestDescriptor) {
 		NodeTestTask<C> nodeTestTask = new NodeTestTask<>(dynamicTestDescriptor, listener, executorService,
 			throwableCollectorFactory);
 		Set<ExclusiveResource> exclusiveResources = nodeTestTask.getExclusiveResources();
@@ -152,11 +185,9 @@ class NodeTestTask<C extends EngineExecutionContext> implements TestTask {
 			listener.executionStarted(dynamicTestDescriptor);
 			String message = "Dynamic test descriptors must not declare exclusive resources: " + exclusiveResources;
 			listener.executionFinished(dynamicTestDescriptor, failed(new JUnitException(message)));
+			return Optional.empty();
 		}
-		else {
-			nodeTestTask.setParentContext(context);
-			futures.add(executorService.submit(nodeTestTask));
-		}
+		return Optional.of(nodeTestTask);
 	}
 
 	private void cleanUp() {
