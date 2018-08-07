@@ -27,5 +27,5 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JUnitPlatform.class)
 @SelectClasses(TestSuite1.class)
-class TestSuite2 {
+public class TestSuite2 {
 }
