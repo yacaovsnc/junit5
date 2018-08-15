@@ -1,5 +1,7 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'com.jfrog.bintray'
 
 def isSnapshot = project.version.contains('SNAPSHOT')
 
@@ -80,5 +82,39 @@ publishing {
 				password = rootProject.findProperty('ossrhPassword') ?: ''
 			}
 		}
+	}
+}
+
+def bintrayUser = project.findProperty('bintrayUser') ?: System.getenv('BINTRAY_USER')
+def bintrayApiKey = project.findProperty('bintrayApiKey') ?: System.getenv('BINTRAY_API_KEY')
+
+artifactory {
+	contextUrl = 'http://oss.jfrog.org'
+	publish {
+		repository {
+			repoKey = 'oss-snapshot-local'
+			username = bintrayUser
+			password = bintrayApiKey
+		}
+		defaults {
+			publications('maven')
+		}
+	}
+	resolve {
+		repoKey = 'jcenter'
+	}
+}
+
+bintray {
+	user = bintrayUser
+	key = bintrayApiKey
+	publications = ['maven']
+	pkg {
+		userOrg = 'junit-team'
+		repo = 'maven'
+		name = project.group
+		licenses = ['EPL-2.0']
+		vcsUrl = 'https://github.com/junit-team/junit5.git'
+		labels = ['testing', 'junit']
 	}
 }
