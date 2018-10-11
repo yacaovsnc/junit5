@@ -16,7 +16,7 @@ cache:
     - $HOME/.gradle/wrapper/dists
 
 install:
-  - ./gradlew --version # Display Gradle, Groovy, JVM and other versions
+  - ./gradlew --no-daemon --version # Display Gradle, Groovy, JVM and other versions
 
 jdk:
   - openjdk11
@@ -34,7 +34,7 @@ matrix:
     - jdk: openjdk-ea
 
 script:
-  - ./gradlew --scan --warning-mode=all -Dplatform.tooling.support.tests.enabled=true build
+  - ./gradlew --no-daemon --scan --warning-mode=all -Dplatform.tooling.support.tests.enabled=true build
 
 stages:
   - test
@@ -47,6 +47,13 @@ jobs:
       script:
         - ./gradlew --scan --stacktrace --warning-mode=all -PenableJaCoCo build jacocoRootReport
         - bash <(curl -s https://codecov.io/bash)
+    - name: "Windows"
+      os: windows
+      language: shell
+      install:
+        - cinst jdk11 -params 'installdir=C:\\jdk11'
+        - export JAVA_HOME="C:\jdk11"
+        - export PATH=${JAVA_HOME}/bin:${PATH}
     - stage: deploy
       name: "Publish snapshot artifacts"
       env:
