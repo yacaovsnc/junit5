@@ -368,7 +368,7 @@ subprojects { subproj ->
 configure(rootProject) {
 	description = 'JUnit 5'
 
-	apply from: "$rootDir/gradle/gh-pages.gradle"
+	apply from: "$rootDir/gradle/gh-pages.gradle.kts"
 
 	jar.enabled = false
 
