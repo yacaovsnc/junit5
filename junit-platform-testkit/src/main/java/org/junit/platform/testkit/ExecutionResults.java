@@ -40,6 +40,7 @@ public class ExecutionResults {
 
 	private final List<ExecutionEvent> executionEvents;
 	private final List<Execution> testExecutions;
+	private final TestResults testResults;
 
 	/**
 	 * Construct an {@link ExecutionResults} given a {@link List} of recorded {@link ExecutionEvent}s.
@@ -51,10 +52,11 @@ public class ExecutionResults {
 		Preconditions.containsNoNullElements(events, "ExecutionEvent list must not contain null elements");
 
 		this.executionEvents = Collections.unmodifiableList(events);
-		// Cache test executions by reading from the full list of events
 		this.testExecutions = readTestExecutions(events);
+		this.testResults = new TestResults(events);
 	}
 
+	// Cache test executions by reading from the full list of events
 	private static List<Execution> readTestExecutions(List<ExecutionEvent> executionEvents) {
 		List<Execution> executions = new ArrayList<>();
 		Map<TestDescriptor, Instant> executionStarts = new HashMap<>();
@@ -90,6 +92,12 @@ public class ExecutionResults {
 			}
 		}
 		return Collections.unmodifiableList(executions);
+	}
+
+	// --- Fluent API ----------------------------------------------------------
+
+	public TestResults tests() {
+		return this.testResults;
 	}
 
 	// --- ALL Execution Events ------------------------------------------------
