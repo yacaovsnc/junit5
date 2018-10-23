@@ -97,6 +97,7 @@ public final class TestResults {
 	}
 
 	@SafeVarargs
+	@SuppressWarnings({ "varargs", "unchecked" }) // required for JDK 8
 	public final void assertStatistics(Statistics<TestResults>... statistics) {
 		assertAll("Test Statistics", Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
 	}
