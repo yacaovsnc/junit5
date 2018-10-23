@@ -70,8 +70,8 @@ class IgnoreConditionTests {
 	void ignoredAndNotIgnoredTestMethods() {
 		ExecutionResults executionResults = executeTestsForClass(IgnoredMethodsTestCase.class);
 
-		// TODO Add debug support to ExecutionRecorder.
-		// executionResults.getTestEvents().forEach(System.out::println);
+		executionResults.tests().debugEvents();
+		// executionResults.tests().debugEvents(System.err);
 
 		// @formatter:off
 		assertRecordedExecutionEventsContainsExactly(executionResults.getTestEvents(),

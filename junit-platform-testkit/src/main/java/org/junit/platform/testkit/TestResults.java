@@ -19,6 +19,7 @@ import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
 
+import java.io.PrintStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,6 +97,15 @@ public final class TestResults {
 	@SafeVarargs
 	public final void assertStatistics(Statistics<TestResults>... statistics) {
 		assertAll("Test Statistics", Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
+	}
+
+	public void debugEvents() {
+		debugEvents(System.out);
+	}
+
+	public void debugEvents(PrintStream out) {
+		out.println("Test Events:");
+		events().forEach(event -> out.printf("\t%s%n", event));
 	}
 
 	// --- Internals -----------------------------------------------------------
