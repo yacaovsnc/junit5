@@ -13,7 +13,6 @@ package org.junit.jupiter.migrationsupport.conditions;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
 import static org.junit.platform.testkit.ExecutionEventConditions.container;
 import static org.junit.platform.testkit.ExecutionEventConditions.engine;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
@@ -42,10 +41,9 @@ class IgnoreConditionTests {
 	@Test
 	void ignoredTestClassWithDefaultMessage() {
 		Class<?> testClass = IgnoredClassWithDefaultMessageTestCase.class;
-		ExecutionResults executionResults = executeTestsForClass(testClass);
 
 		// @formatter:off
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executeTestsForClass(testClass).assertEventsMatchExactly(
 			event(engine(), started()),
 			event(container(testClass), skippedWithReason(testClass + " is disabled via @org.junit.Ignore")),
 			event(engine(), finishedSuccessfully())
@@ -56,10 +54,9 @@ class IgnoreConditionTests {
 	@Test
 	void ignoredTestClassWithCustomMessage() {
 		Class<?> testClass = IgnoredClassWithCustomMessageTestCase.class;
-		ExecutionResults executionResults = executeTestsForClass(testClass);
 
 		// @formatter:off
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(),
+		executeTestsForClass(testClass).assertEventsMatchExactly(
 			event(engine(), started()),
 			event(container(testClass), skippedWithReason("Ignored Class")),
 			event(engine(), finishedSuccessfully())
