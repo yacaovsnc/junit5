@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.platform.testkit.ExecutionRecorder;
 import org.junit.platform.testkit.ExecutionResults;
+import org.junit.platform.testkit.TestResults;
 
 /**
  * Integration tests for JUnit 4's {@link Ignore @Ignore} support in JUnit
@@ -68,13 +69,13 @@ class IgnoreConditionTests {
 
 	@Test
 	void ignoredAndNotIgnoredTestMethods() {
-		ExecutionResults executionResults = executeTestsForClass(IgnoredMethodsTestCase.class);
+		TestResults tests = executeTestsForClass(IgnoredMethodsTestCase.class).tests();
 
-		executionResults.tests().debugEvents();
-		// executionResults.tests().debugEvents(System.err);
+		tests.debugEvents();
+		// tests.debugEvents(System.err);
 
 		// @formatter:off
-		assertRecordedExecutionEventsContainsExactly(executionResults.getTestEvents(),
+		tests.assertEventsMatchExactly(
 			event(test("ignoredWithCustomMessage"), skippedWithReason("Ignored Method")),
 			event(test("notIgnored"), started()),
 			event(test("notIgnored"), finishedSuccessfully()),

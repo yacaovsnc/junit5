@@ -18,6 +18,7 @@ import static org.junit.platform.testkit.Assertions.assertAll;
 import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
+import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
 
 import java.io.PrintStream;
 import java.time.Instant;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
+import org.assertj.core.api.Condition;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
@@ -97,6 +99,11 @@ public final class TestResults {
 	@SafeVarargs
 	public final void assertStatistics(Statistics<TestResults>... statistics) {
 		assertAll("Test Statistics", Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
+	}
+
+	@SafeVarargs
+	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
+		assertRecordedExecutionEventsContainsExactly(events().collect(toList()), conditions);
 	}
 
 	public void debugEvents() {
