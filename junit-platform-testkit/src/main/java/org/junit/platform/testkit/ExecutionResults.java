@@ -17,6 +17,7 @@ import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.commons.util.Preconditions.notNull;
 import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
 
+import java.io.PrintStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,6 +106,15 @@ public class ExecutionResults {
 	@SafeVarargs
 	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
 		assertRecordedExecutionEventsContainsExactly(getExecutionEvents(), conditions);
+	}
+
+	public void debugEvents() {
+		debugEvents(System.out);
+	}
+
+	public void debugEvents(PrintStream out) {
+		out.println("All Events:");
+		getExecutionEvents().forEach(event -> out.printf("\t%s%n", event));
 	}
 
 	// --- ALL Execution Events ------------------------------------------------

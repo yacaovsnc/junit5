@@ -54,9 +54,13 @@ class IgnoreConditionTests {
 	@Test
 	void ignoredTestClassWithCustomMessage() {
 		Class<?> testClass = IgnoredClassWithCustomMessageTestCase.class;
+		ExecutionResults executionResults = executeTestsForClass(testClass);
+
+		executionResults.debugEvents();
+		// executionResults.debugEvents(System.err);
 
 		// @formatter:off
-		executeTestsForClass(testClass).assertEventsMatchExactly(
+		executionResults.assertEventsMatchExactly(
 			event(engine(), started()),
 			event(container(testClass), skippedWithReason("Ignored Class")),
 			event(engine(), finishedSuccessfully())
