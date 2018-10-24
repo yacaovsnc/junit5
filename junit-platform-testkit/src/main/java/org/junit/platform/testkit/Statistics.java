@@ -47,4 +47,14 @@ public interface Statistics<T> {
 		return events -> StatisticsUtils.assertStatistic(expected, events.failed()::stream, "failed");
 	}
 
+	public static Statistics<Events> reportingEntryPublished(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.reportingEntryPublished()::stream,
+			"reporting entry published");
+	}
+
+	public static Statistics<Events> dynamicTestRegistered(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.dynamicTestRegistered()::stream,
+			"dynamic test registered");
+	}
+
 }

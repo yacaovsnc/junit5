@@ -106,6 +106,14 @@ public final class Events {
 		return new Events(finishedEventsByStatus(Status.FAILED), this.category + " Failed");
 	}
 
+	public Events reportingEntryPublished() {
+		return new Events(eventsByType(Type.REPORTING_ENTRY_PUBLISHED), this.category + " - Reporting Entry Published");
+	}
+
+	public Events dynamicTestRegistered() {
+		return new Events(eventsByType(Type.DYNAMIC_TEST_REGISTERED), this.category + " - Dynamic Test Registered");
+	}
+
 	// --- Assertions ----------------------------------------------------------
 
 	@SafeVarargs
