@@ -10,16 +10,17 @@
 
 package org.junit.platform.testkit;
 
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
@@ -28,50 +29,49 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
 
 /**
- * Fluent API for test results.
- *
- * <p>In this context, the word "test" applies only to {@link TestDescriptor
- * TestDescriptors} of type {@link TestDescriptor.Type#TEST TEST}.
+ * Fluent API for working with filtered {@link ExecutionResults}.
  *
  * @since 1.4
  */
 @API(status = EXPERIMENTAL, since = "1.4")
-public final class TestResults {
+public class FilteredResults {
 
-	private final List<ExecutionEvent> testEvents;
-	private final List<Execution> testExecutions;
+	private final List<ExecutionEvent> events;
+	private final List<Execution> executions;
+	private final String category;
 
-	TestResults(List<ExecutionEvent> events) {
+	FilteredResults(List<ExecutionEvent> events, Predicate<? super TestDescriptor> predicate, String category) {
 		Preconditions.notNull(events, "ExecutionEvent list must not be null");
 		Preconditions.containsNoNullElements(events, "ExecutionEvent list must not contain null elements");
 
-		this.testEvents = extractTestEvents(events);
-		this.testExecutions = createExecutions(this.testEvents);
+		this.events = unmodifiableList(extractFilteredEvents(events, predicate));
+		this.executions = unmodifiableList(createExecutions(this.events));
+		this.category = category;
 	}
 
 	// --- Accessors -----------------------------------------------------------
 
 	public Events events() {
-		return new Events(this.testEvents, "Test");
+		return new Events(this.events, this.category);
 	}
 
 	public Stream<Execution> executions() {
-		return this.testExecutions.stream();
+		return this.executions.stream();
 	}
 
 	// --- Internals -----------------------------------------------------------
 
 	/**
-	 * Cache test events by extracting them from the full list of events.
+	 * Filter the supplied list of events using the supplied predicate.
 	 */
-	private static List<ExecutionEvent> extractTestEvents(List<ExecutionEvent> events) {
-		return Collections.unmodifiableList(events.stream() //
-				.filter(byTestDescriptor(TestDescriptor::isTest)) //
-				.collect(toList()));
+	private static List<ExecutionEvent> extractFilteredEvents(List<ExecutionEvent> events,
+			Predicate<? super TestDescriptor> predicate) {
+
+		return events.stream().filter(byTestDescriptor(predicate)).collect(toList());
 	}
 
 	/**
-	 * Cache test executions by reading from the full list of test events.
+	 * Create executions from the supplied list of events.
 	 */
 	private static List<Execution> createExecutions(List<ExecutionEvent> executionEvents) {
 		List<Execution> executions = new ArrayList<>();
@@ -101,13 +101,13 @@ public final class TestResults {
 					break;
 				}
 				default: {
-					// Ignore reporting entry publication and dynamic test registration events
+					// Ignore other events
 					break;
 				}
 			}
 		}
 
-		return Collections.unmodifiableList(executions);
+		return executions;
 	}
 
 }

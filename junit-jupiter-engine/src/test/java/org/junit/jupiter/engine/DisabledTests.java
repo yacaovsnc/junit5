@@ -35,7 +35,8 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 	@Test
 	void executeTestsWithDisabledTestClass() {
 		ExecutionResults results = executeTestsForClass(DisabledTestClassTestCase.class);
-		assertEquals(1, results.getContainersSkippedCount(), "# container skipped");
+
+		results.containers().events().assertStatistics(skipped(1));
 		results.tests().events().assertStatistics(started(0));
 	}
 

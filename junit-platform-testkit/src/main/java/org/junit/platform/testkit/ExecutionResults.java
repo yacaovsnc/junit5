@@ -40,7 +40,8 @@ public class ExecutionResults {
 
 	private final List<ExecutionEvent> executionEvents;
 	private final List<Execution> testExecutions;
-	private final TestResults testResults;
+	private final FilteredResults containerResults;
+	private final FilteredResults testResults;
 
 	/**
 	 * Construct an {@link ExecutionResults} given a {@link List} of recorded {@link ExecutionEvent}s.
@@ -53,7 +54,8 @@ public class ExecutionResults {
 
 		this.executionEvents = Collections.unmodifiableList(events);
 		this.testExecutions = readTestExecutions(events);
-		this.testResults = new TestResults(events);
+		this.testResults = new FilteredResults(events, TestDescriptor::isTest, "Test");
+		this.containerResults = new FilteredResults(events, TestDescriptor::isContainer, "Container");
 	}
 
 	// Cache test executions by reading from the full list of events
@@ -104,9 +106,24 @@ public class ExecutionResults {
 	}
 
 	/**
-	 * Get the {@link TestResults}.
+	 * Get the filtered results for all containers.
+	 *
+	 * <p>In this context, the word "container" applies to {@link TestDescriptor
+	 * TestDescriptors} that return {@code true} from
+	 * {@link TestDescriptor#isContainer()}.
 	 */
-	public TestResults tests() {
+	public FilteredResults containers() {
+		return this.containerResults;
+	}
+
+	/**
+	 * Get the filtered results for all tests.
+	 *
+	 * <p>In this context, the word "container" applies to {@link TestDescriptor
+	 * TestDescriptors} that return {@code true} from
+	 * {@link TestDescriptor#isTest()}.
+	 */
+	public FilteredResults tests() {
 		return this.testResults;
 	}
 
