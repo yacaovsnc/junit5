@@ -99,7 +99,7 @@ public class ExecutionResults {
 	// --- Fluent API ----------------------------------------------------------
 
 	/**
-	 * Get all events.
+	 * Get all recorded events.
 	 */
 	public Events events() {
 		return new Events(this.executionEvents, "All");
@@ -119,7 +119,7 @@ public class ExecutionResults {
 	/**
 	 * Get the filtered results for all tests.
 	 *
-	 * <p>In this context, the word "container" applies to {@link TestDescriptor
+	 * <p>In this context, the word "test" applies to {@link TestDescriptor
 	 * TestDescriptors} that return {@code true} from
 	 * {@link TestDescriptor#isTest()}.
 	 */
@@ -154,7 +154,7 @@ public class ExecutionResults {
 	 * @return the {@link List} of {@link ExecutionEvent}s that occurred for a test of the provided type
 	 */
 	public List<ExecutionEvent> getExecutionEvents(ExecutionEvent.Type type) {
-		return eventsByTypeAndTestDescriptor(type, ignored -> true).collect(toList());
+		return eventsByTypeAndTestDescriptor(type).collect(toList());
 	}
 
 	/**
@@ -175,11 +175,10 @@ public class ExecutionResults {
 	 * @return the {@link List} of {@link ExecutionEvent}s that finished with the provided status
 	 */
 	public List<ExecutionEvent> getExecutionEventsFinished(TestExecutionResult.Status status) {
-		Predicate<ExecutionEvent> byPayload = ExecutionEvent.byPayload(TestExecutionResult.class,
-			result -> result.getStatus().equals(status));
-
-		return eventsByTypeAndTestDescriptor(ExecutionEvent.Type.FINISHED, ignored -> true) //
-				.filter(byPayload).collect(toList());
+		return eventsByTypeAndTestDescriptor(ExecutionEvent.Type.FINISHED)//
+				.filter(ExecutionEvent.byPayload(TestExecutionResult.class,
+					where(TestExecutionResult::getStatus, isEqual(status))))//
+				.collect(toList());
 	}
 
 	/**
@@ -546,6 +545,11 @@ public class ExecutionResults {
 	}
 
 	// -------------------------------------------------------------------------
+	private static final Predicate<? super TestDescriptor> alwaysTrue = descriptor -> true;
+
+	private Stream<ExecutionEvent> eventsByTypeAndTestDescriptor(ExecutionEvent.Type type) {
+		return eventsByTypeAndTestDescriptor(type, alwaysTrue);
+	}
 
 	private Stream<ExecutionEvent> eventsByTypeAndTestDescriptor(ExecutionEvent.Type type,
 			Predicate<? super TestDescriptor> predicate) {
