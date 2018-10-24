@@ -25,6 +25,7 @@ import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.engine.JupiterTestEngine;
+import org.junit.platform.testkit.Events;
 import org.junit.platform.testkit.ExecutionRecorder;
 import org.junit.platform.testkit.ExecutionResults;
 import org.junit.platform.testkit.TestResults;
@@ -43,7 +44,7 @@ class IgnoreConditionTests {
 		Class<?> testClass = IgnoredClassWithDefaultMessageTestCase.class;
 
 		// @formatter:off
-		executeTestsForClass(testClass).assertEventsMatchExactly(
+		executeTestsForClass(testClass).events().assertEventsMatchExactly(
 			event(engine(), started()),
 			event(container(testClass), skippedWithReason(testClass + " is disabled via @org.junit.Ignore")),
 			event(engine(), finishedSuccessfully())
@@ -54,13 +55,13 @@ class IgnoreConditionTests {
 	@Test
 	void ignoredTestClassWithCustomMessage() {
 		Class<?> testClass = IgnoredClassWithCustomMessageTestCase.class;
-		ExecutionResults executionResults = executeTestsForClass(testClass);
+		Events events = executeTestsForClass(testClass).events();
 
-		executionResults.debugEvents();
-		// executionResults.debugEvents(System.err);
+		events.debug();
+		// events.debug(System.err);
 
 		// @formatter:off
-		executionResults.assertEventsMatchExactly(
+		events.assertEventsMatchExactly(
 			event(engine(), started()),
 			event(container(testClass), skippedWithReason("Ignored Class")),
 			event(engine(), finishedSuccessfully())
@@ -70,13 +71,19 @@ class IgnoreConditionTests {
 
 	@Test
 	void ignoredAndNotIgnoredTestMethods() {
-		TestResults tests = executeTestsForClass(IgnoredMethodsTestCase.class).tests();
+		ExecutionResults executionResults = executeTestsForClass(IgnoredMethodsTestCase.class);
+		TestResults tests = executionResults.tests();
 
-		tests.debugEvents();
-		// tests.debugEvents(System.err);
+		executionResults.events().debug();
+
+		// tests.events().debug(System.err);
+		tests.events().debug();
+		tests.events().skipped().debug();
+		tests.events().started().debug();
+		tests.events().succeeded().debug();
 
 		// @formatter:off
-		tests.assertEventsMatchExactly(
+		tests.events().assertEventsMatchExactly(
 			event(test("ignoredWithCustomMessage"), skippedWithReason("Ignored Method")),
 			event(test("notIgnored"), started()),
 			event(test("notIgnored"), finishedSuccessfully()),

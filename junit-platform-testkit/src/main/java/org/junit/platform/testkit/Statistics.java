@@ -21,30 +21,30 @@ import org.apiguardian.api.API;
 @FunctionalInterface
 public interface Statistics<T> {
 
-	void assertStatistic(T results);
+	void assertStatistic(T events);
 
-	public static Statistics<TestResults> skipped(long expected) {
-		return results -> StatisticsUtils.assertStatistic(expected, results::skipped, "skipped");
+	public static Statistics<Events> skipped(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.skipped()::stream, "skipped");
 	}
 
-	public static Statistics<TestResults> started(long expected) {
-		return results -> StatisticsUtils.assertStatistic(expected, results::started, "started");
+	public static Statistics<Events> started(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.started()::stream, "started");
 	}
 
-	public static Statistics<TestResults> finished(long expected) {
-		return results -> StatisticsUtils.assertStatistic(expected, results::finished, "finished");
+	public static Statistics<Events> finished(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.finished()::stream, "finished");
 	}
 
-	public static Statistics<TestResults> aborted(long expected) {
-		return results -> StatisticsUtils.assertStatistic(expected, results::aborted, "aborted");
+	public static Statistics<Events> aborted(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.aborted()::stream, "aborted");
 	}
 
-	public static Statistics<TestResults> succeeded(long expected) {
-		return results -> StatisticsUtils.assertStatistic(expected, results::succeeded, "succeeded");
+	public static Statistics<Events> succeeded(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.succeeded()::stream, "succeeded");
 	}
 
-	public static Statistics<TestResults> failed(long expected) {
-		return results -> StatisticsUtils.assertStatistic(expected, results::failed, "failed");
+	public static Statistics<Events> failed(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.failed()::stream, "failed");
 	}
 
 }

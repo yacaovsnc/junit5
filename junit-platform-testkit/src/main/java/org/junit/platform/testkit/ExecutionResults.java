@@ -15,9 +15,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.commons.util.Preconditions.notNull;
-import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
 
-import java.io.PrintStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +26,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
-import org.assertj.core.api.Condition;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
@@ -99,22 +96,18 @@ public class ExecutionResults {
 
 	// --- Fluent API ----------------------------------------------------------
 
+	/**
+	 * Get all events.
+	 */
+	public Events events() {
+		return new Events(this.executionEvents, "All");
+	}
+
+	/**
+	 * Get the {@link TestResults}.
+	 */
 	public TestResults tests() {
 		return this.testResults;
-	}
-
-	@SafeVarargs
-	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
-		assertRecordedExecutionEventsContainsExactly(getExecutionEvents(), conditions);
-	}
-
-	public void debugEvents() {
-		debugEvents(System.out);
-	}
-
-	public void debugEvents(PrintStream out) {
-		out.println("All Events:");
-		getExecutionEvents().forEach(event -> out.printf("\t%s%n", event));
 	}
 
 	// --- ALL Execution Events ------------------------------------------------

@@ -22,8 +22,8 @@ import static org.junit.platform.testkit.Statistics.succeeded;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.testkit.Events;
 import org.junit.platform.testkit.ExecutionResults;
-import org.junit.platform.testkit.TestResults;
 
 /**
  * Integration tests that verify support for {@link Disabled @Disabled} in the {@link JupiterTestEngine}.
@@ -36,30 +36,30 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 	void executeTestsWithDisabledTestClass() {
 		ExecutionResults results = executeTestsForClass(DisabledTestClassTestCase.class);
 		assertEquals(1, results.getContainersSkippedCount(), "# container skipped");
-		results.tests().assertStatistics(started(0));
+		results.tests().events().assertStatistics(started(0));
 	}
 
 	@Test
 	void executeTestsWithDisabledTestMethods() throws Exception {
-		TestResults tests = executeTestsForClass(DisabledTestMethodsTestCase.class).tests();
+		Events testEvents = executeTestsForClass(DisabledTestMethodsTestCase.class).tests().events();
 
 		// MANUAL APPROACH for asserting statistics
 		//
 		// @formatter:off
 		assertAll(
-			() -> assertEquals(1, tests.started().count(), "# tests started"),
-			() -> assertEquals(1, tests.skipped().count(), "# tests skipped"),
-			() -> assertEquals(1, tests.finished().count(), "# tests finished"),
-			() -> assertEquals(0, tests.aborted().count(), "# tests aborted"),
-			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
-			() -> assertEquals(0, tests.failed().count(), "# tests failed")
+			() -> assertEquals(1, testEvents.started().count(), "# tests started"),
+			() -> assertEquals(1, testEvents.skipped().count(), "# tests skipped"),
+			() -> assertEquals(1, testEvents.finished().count(), "# tests finished"),
+			() -> assertEquals(0, testEvents.aborted().count(), "# tests aborted"),
+			() -> assertEquals(1, testEvents.succeeded().count(), "# tests succeeded"),
+			() -> assertEquals(0, testEvents.failed().count(), "# tests failed")
 		);
 		// @formatter:on
 
 		// BUILT-IN APPROACH for asserting statistics
 		//
 		// @formatter:off
-		tests.assertStatistics(
+		testEvents.assertStatistics(
 			skipped(1),
 			started(1),
 			finished(1),
@@ -70,7 +70,7 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 		// @formatter:on
 
 		String method = DisabledTestMethodsTestCase.class.getDeclaredMethod("disabledTest").toString();
-		String reason = tests.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);
+		String reason = testEvents.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);
 		assertEquals(method + " is @Disabled", reason);
 	}
 

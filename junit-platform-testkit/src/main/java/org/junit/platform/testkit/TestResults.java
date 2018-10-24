@@ -10,20 +10,12 @@
 
 package org.junit.platform.testkit;
 
-import static java.util.function.Predicate.isEqual;
 import static java.util.stream.Collectors.toList;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
-import static org.junit.platform.commons.util.FunctionUtils.where;
-import static org.junit.platform.testkit.Assertions.assertAll;
-import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
-import static org.junit.platform.testkit.ExecutionEvent.byType;
-import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
 
-import java.io.PrintStream;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,12 +23,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
-import org.assertj.core.api.Condition;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
-import org.junit.platform.engine.TestExecutionResult.Status;
-import org.junit.platform.testkit.ExecutionEvent.Type;
 
 /**
  * Fluent API for test results.
@@ -60,76 +49,17 @@ public final class TestResults {
 		this.testExecutions = createExecutions(this.testEvents);
 	}
 
-	// --- Executions ----------------------------------------------------------
+	// --- Accessors -----------------------------------------------------------
+
+	public Events events() {
+		return new Events(this.testEvents, "Test");
+	}
 
 	public Stream<Execution> executions() {
 		return this.testExecutions.stream();
 	}
 
-	// --- Events --------------------------------------------------------------
-
-	public Stream<ExecutionEvent> events() {
-		return this.testEvents.stream();
-	}
-
-	public Stream<ExecutionEvent> skipped() {
-		return eventsByType(Type.SKIPPED);
-	}
-
-	public Stream<ExecutionEvent> started() {
-		return eventsByType(Type.STARTED);
-	}
-
-	public Stream<ExecutionEvent> finished() {
-		return eventsByType(Type.FINISHED);
-	}
-
-	public Stream<ExecutionEvent> aborted() {
-		return finishedEvents(Status.ABORTED);
-	}
-
-	public Stream<ExecutionEvent> succeeded() {
-		return finishedEvents(Status.SUCCESSFUL);
-	}
-
-	public Stream<ExecutionEvent> failed() {
-		return finishedEvents(Status.FAILED);
-	}
-
-	@SafeVarargs
-	@SuppressWarnings({ "varargs", "unchecked" }) // required for JDK 8
-	public final void assertStatistics(Statistics<TestResults>... statistics) {
-		assertAll("Test Statistics", Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
-	}
-
-	@SafeVarargs
-	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
-		assertRecordedExecutionEventsContainsExactly(events().collect(toList()), conditions);
-	}
-
-	public void debugEvents() {
-		debugEvents(System.out);
-	}
-
-	public void debugEvents(PrintStream out) {
-		out.println("Test Events:");
-		events().forEach(event -> out.printf("\t%s%n", event));
-	}
-
 	// --- Internals -----------------------------------------------------------
-
-	private Stream<ExecutionEvent> eventsByType(Type type) {
-		Preconditions.notNull(type, "Type must not be null");
-		return events().filter(byType(type));
-	}
-
-	private Stream<ExecutionEvent> finishedEvents(Status status) {
-		Preconditions.notNull(status, "Status must not be null");
-		return eventsByType(Type.FINISHED)//
-				.filter(byPayload(TestExecutionResult.class, where(TestExecutionResult::getStatus, isEqual(status))));
-	}
-
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Cache test events by extracting them from the full list of events.
