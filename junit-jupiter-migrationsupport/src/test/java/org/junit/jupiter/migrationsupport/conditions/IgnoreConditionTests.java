@@ -25,7 +25,6 @@ import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.engine.JupiterTestEngine;
-import org.junit.platform.testkit.Events;
 import org.junit.platform.testkit.ExecutionRecorder;
 import org.junit.platform.testkit.ExecutionResults;
 import org.junit.platform.testkit.FilteredResults;
@@ -55,13 +54,9 @@ class IgnoreConditionTests {
 	@Test
 	void ignoredTestClassWithCustomMessage() {
 		Class<?> testClass = IgnoredClassWithCustomMessageTestCase.class;
-		Events events = executeTestsForClass(testClass).events();
-
-		events.debug();
-		// events.debug(System.err);
 
 		// @formatter:off
-		events.assertEventsMatchExactly(
+		executeTestsForClass(testClass).events().assertEventsMatchExactly(
 			event(engine(), started()),
 			event(container(testClass), skippedWithReason("Ignored Class")),
 			event(engine(), finishedSuccessfully())
@@ -76,6 +71,7 @@ class IgnoreConditionTests {
 		FilteredResults tests = executionResults.tests();
 
 		executionResults.events().debug();
+		// events.debug(System.err);
 
 		containers.events().debug();
 
@@ -84,6 +80,10 @@ class IgnoreConditionTests {
 		tests.events().skipped().debug();
 		tests.events().started().debug();
 		tests.events().succeeded().debug();
+
+		executionResults.executions().debug();
+		containers.executions().debug();
+		tests.executions().debug();
 
 		// @formatter:off
 		tests.events().assertEventsMatchExactly(

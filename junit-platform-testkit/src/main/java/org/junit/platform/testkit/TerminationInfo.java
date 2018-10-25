@@ -14,6 +14,7 @@ import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 
 import org.apiguardian.api.API;
 import org.junit.platform.commons.util.Preconditions;
+import org.junit.platform.commons.util.ToStringBuilder;
 import org.junit.platform.engine.TestExecutionResult;
 
 /**
@@ -22,22 +23,10 @@ import org.junit.platform.engine.TestExecutionResult;
  * was skipped or the {@link TestExecutionResult} if the container/test was executed.
  *
  * @since 1.4
+ * @see Execution#getTerminationInfo()
  */
 @API(status = EXPERIMENTAL, since = "1.4")
 public class TerminationInfo {
-
-	private final String skipReason;
-	private final TestExecutionResult executionResult;
-
-	private TerminationInfo(String skipReason, TestExecutionResult executionResult) {
-		boolean skipped = (skipReason != null);
-		boolean executed = (executionResult != null);
-		Preconditions.condition((skipped ^ executed),
-			"Either a skip reason or TestExecutionResult must be provided but not both");
-
-		this.skipReason = skipReason;
-		this.executionResult = executionResult;
-	}
 
 	public static TerminationInfo skipped(String skipReason) {
 		return new TerminationInfo(skipReason, null);
@@ -47,16 +36,33 @@ public class TerminationInfo {
 		return new TerminationInfo(null, executionResult);
 	}
 
-	public boolean isSkipReason() {
-		return this.skipReason != null;
+	private final String skipReason;
+	private final TestExecutionResult testExecutionResult;
+
+	private TerminationInfo(String skipReason, TestExecutionResult testExecutionResult) {
+		boolean skipped = (skipReason != null);
+		boolean executed = (testExecutionResult != null);
+		Preconditions.condition((skipped ^ executed),
+			"Either a skip reason or TestExecutionResult must be provided but not both");
+
+		this.skipReason = skipReason;
+		this.testExecutionResult = testExecutionResult;
 	}
 
-	public boolean isExecutionResult() {
-		return this.executionResult != null;
+	public boolean skipped() {
+		return (this.skipReason != null);
+	}
+
+	public boolean notSkipped() {
+		return !skipped();
+	}
+
+	public boolean executed() {
+		return (this.testExecutionResult != null);
 	}
 
 	public String getSkipReason() {
-		if (isSkipReason()) {
+		if (skipped()) {
 			return this.skipReason;
 		}
 		// else
@@ -64,11 +70,23 @@ public class TerminationInfo {
 	}
 
 	public TestExecutionResult getExecutionResult() {
-		if (isExecutionResult()) {
-			return this.executionResult;
+		if (executed()) {
+			return this.testExecutionResult;
 		}
 		// else
 		throw new UnsupportedOperationException("No TestExecutionResult contained in this TerminationInfo");
+	}
+
+	@Override
+	public String toString() {
+		ToStringBuilder builder = new ToStringBuilder(this);
+		if (skipped()) {
+			builder.append("skipped", skipped()).append("reason", this.skipReason);
+		}
+		else {
+			builder.append("executed", this.executed()).append("result", this.testExecutionResult);
+		}
+		return builder.toString();
 	}
 
 }

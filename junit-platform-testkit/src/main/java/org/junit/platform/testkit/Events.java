@@ -35,7 +35,7 @@ import org.junit.platform.testkit.ExecutionEvent.Type;
 
 /**
  * {@link Events} is a facade that provides a fluent API for working with
- * {@link ExecutionEvent ExecutionEvents}.
+ * {@linkplain ExecutionEvent execution events}.
  *
  * @since 1.4
  */

@@ -38,6 +38,8 @@ import org.junit.platform.engine.TestExecutionResult;
 @API(status = EXPERIMENTAL, since = "1.4")
 public class ExecutionResults {
 
+	private static final String CATEGORY = "All";
+
 	private final List<ExecutionEvent> executionEvents;
 	private final List<Execution> testExecutions;
 	private final FilteredResults containerResults;
@@ -102,7 +104,7 @@ public class ExecutionResults {
 	 * Get all recorded events.
 	 */
 	public Events events() {
-		return new Events(this.executionEvents, "All");
+		return new Events(this.executionEvents, CATEGORY);
 	}
 
 	/**
@@ -125,6 +127,13 @@ public class ExecutionResults {
 	 */
 	public FilteredResults tests() {
 		return this.testResults;
+	}
+
+	/**
+	 * Get all recorded executions.
+	 */
+	public Executions executions() {
+		return new Executions(this.executionEvents, CATEGORY);
 	}
 
 	// --- ALL Execution Events ------------------------------------------------
@@ -433,7 +442,7 @@ public class ExecutionResults {
 	 * @return the {@link List} of Test {@link Execution}s that were skipped.
 	 */
 	public List<Execution> getTestsSkippedExecutions() {
-		return testExecutionsByTerminationInfo(TerminationInfo::isSkipReason).collect(toList());
+		return testExecutionsByTerminationInfo(TerminationInfo::skipped).collect(toList());
 	}
 
 	/**
@@ -451,7 +460,7 @@ public class ExecutionResults {
 	 * @return the {@link List} of Test {@link Execution}s that were started
 	 */
 	public List<Execution> getTestsStartedExecutions() {
-		return testExecutionsByTerminationInfo(info -> !info.isSkipReason()).collect(toList());
+		return testExecutionsByTerminationInfo(TerminationInfo::notSkipped).collect(toList());
 	}
 
 	/**
@@ -470,7 +479,7 @@ public class ExecutionResults {
 	 * @return the {@link List} of Test {@link Execution}s that were finished
 	 */
 	public List<Execution> getTestsFinishedExecutions() {
-		return testExecutionsByTerminationInfo(TerminationInfo::isExecutionResult).collect(toList());
+		return testExecutionsByTerminationInfo(TerminationInfo::executed).collect(toList());
 	}
 
 	/**
@@ -491,7 +500,7 @@ public class ExecutionResults {
 	 * @return the {@link List} of Test {@link Execution}s that finished with the provided {@link TestExecutionResult.Status}
 	 */
 	public List<Execution> getTestsFinishedExecutions(TestExecutionResult.Status status) {
-		return testExecutionsByTerminationInfo(TerminationInfo::isExecutionResult).filter(
+		return testExecutionsByTerminationInfo(TerminationInfo::executed).filter(
 			execution -> execution.getTerminationInfo().getExecutionResult().getStatus().equals(
 				notNull(status, "TestExecutionResult.Status cannot be null"))).collect(toList());
 	}
