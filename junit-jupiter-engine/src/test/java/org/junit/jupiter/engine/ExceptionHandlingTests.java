@@ -125,7 +125,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectMethod(testClass, "testWithUncheckedException"));
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(test("testWithUncheckedException"), started()), //
@@ -144,7 +144,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectMethod(FailureTestCase.class, "abortedTest"));
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(FailureTestCase.class), started()), //
 			event(test("abortedTest"), started()), //
@@ -165,7 +165,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectMethod(testClass, "succeedingTest"));
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass), finishedWithFailure(allOf(isA(IOException.class), message("checked")))), //
@@ -180,7 +180,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectMethod(testClass, "succeedingTest"));
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(test("succeedingTest"), started()), //
@@ -193,7 +193,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 	void exceptionInAfterAllCallbackDoesNotHideExceptionInBeforeAllCallback() {
 		Class<?> testClass = TestCaseWithThrowingBeforeAllAndAfterAllCallbacks.class;
 		ExecutionResults executionResults = executeTestsForClass(testClass);
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass), finishedWithFailure(allOf( //
@@ -206,7 +206,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 	void exceptionsInConstructorAndAfterAllCallbackAreReportedWhenTestInstancePerMethodIsUsed() {
 		Class<?> testClass = TestCaseWithInvalidConstructorAndThrowingAfterAllCallbackAndPerMethodLifecycle.class;
 		ExecutionResults executionResults = executeTestsForClass(testClass);
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(test("test"), started()), //
@@ -219,7 +219,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 	void exceptionInConstructorPreventsExecutionOfAfterAllCallbacksWhenTestInstancePerClassIsUsed() {
 		Class<?> testClass = TestCaseWithInvalidConstructorAndThrowingAfterAllCallbackAndPerClassLifecycle.class;
 		ExecutionResults executionResults = executeTestsForClass(testClass);
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass), finishedWithFailure(message("constructor"))),
@@ -233,7 +233,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectMethod(FailureTestCase.class, "succeedingTest"));
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getExecutionEvents(), //
+		executionResults.events().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(FailureTestCase.class), started()), //
 			event(container(FailureTestCase.class),

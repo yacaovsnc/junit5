@@ -467,7 +467,7 @@ class ParallelExecutionIntegrationTests {
 				.configurationParameter(PARALLEL_CONFIG_FIXED_PARALLELISM_PROPERTY_NAME, String.valueOf(parallelism))
 				.build();
 		// @formatter:on
-		return ExecutionRecorder.execute(new JupiterTestEngine(), discoveryRequest).getExecutionEvents();
+		return ExecutionRecorder.execute(new JupiterTestEngine(), discoveryRequest).events().list();
 	}
 
 	static class ThreadReporter implements AfterTestExecutionCallback {

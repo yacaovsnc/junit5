@@ -13,7 +13,6 @@ package org.junit.platform.testkit;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -30,7 +29,6 @@ import org.junit.platform.engine.TestDescriptor;
 @API(status = EXPERIMENTAL, since = "1.4")
 public class ExecutionResults {
 
-	private final List<ExecutionEvent> executionEvents;
 	private final Events allEvents;
 	private final Events testEvents;
 	private final Events containerEvents;
@@ -43,8 +41,6 @@ public class ExecutionResults {
 	ExecutionResults(List<ExecutionEvent> events) {
 		Preconditions.notNull(events, "ExecutionEvent list must not be null");
 		Preconditions.containsNoNullElements(events, "ExecutionEvent list must not contain null elements");
-
-		this.executionEvents = Collections.unmodifiableList(events);
 
 		this.allEvents = new Events(events, "All");
 		this.testEvents = new Events(filterEvents(events, TestDescriptor::isTest), "Test");
@@ -80,12 +76,6 @@ public class ExecutionResults {
 	 */
 	public Events tests() {
 		return this.testEvents;
-	}
-
-	// --- ALL Events ----------------------------------------------------------
-
-	public List<ExecutionEvent> getExecutionEvents() {
-		return this.executionEvents;
 	}
 
 	// --- Test Events ---------------------------------------------------------

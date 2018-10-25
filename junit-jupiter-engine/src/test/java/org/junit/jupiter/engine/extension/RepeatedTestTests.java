@@ -129,7 +129,7 @@ class RepeatedTestTests {
 	@RepeatedTest(1)
 	void failsContainerOnEmptyPattern() {
 		ExecutionResults executionResults = execute(selectMethod(TestCase.class, "testWithEmptyPattern"));
-		assertThat(executionResults.getExecutionEvents()) //
+		assertThat(executionResults.events().list()) //
 				.haveExactly(1, event(container(), displayName("testWithEmptyPattern()"), //
 					finishedWithFailure(message(value -> value.contains("must be declared with a non-empty name")))));
 	}
@@ -137,7 +137,7 @@ class RepeatedTestTests {
 	@RepeatedTest(1)
 	void failsContainerOnBlankPattern() {
 		ExecutionResults executionResults = execute(selectMethod(TestCase.class, "testWithBlankPattern"));
-		assertThat(executionResults.getExecutionEvents()) //
+		assertThat(executionResults.events().list()) //
 				.haveExactly(1, event(container(), displayName("testWithBlankPattern()"), //
 					finishedWithFailure(message(value -> value.contains("must be declared with a non-empty name")))));
 	}
@@ -145,7 +145,7 @@ class RepeatedTestTests {
 	@RepeatedTest(1)
 	void failsContainerOnNegativeRepeatCount() {
 		ExecutionResults executionResults = execute(selectMethod(TestCase.class, "negativeRepeatCount"));
-		assertThat(executionResults.getExecutionEvents()) //
+		assertThat(executionResults.events().list()) //
 				.haveExactly(1, event(container(), displayName("negativeRepeatCount()"), //
 					finishedWithFailure(message(value -> value.contains("must be declared with a positive 'value'")))));
 	}
@@ -153,7 +153,7 @@ class RepeatedTestTests {
 	@RepeatedTest(1)
 	void failsContainerOnZeroRepeatCount() {
 		ExecutionResults executionResults = execute(selectMethod(TestCase.class, "zeroRepeatCount"));
-		assertThat(executionResults.getExecutionEvents()) //
+		assertThat(executionResults.events().list()) //
 				.haveExactly(1, event(container(), displayName("zeroRepeatCount()"), //
 					finishedWithFailure(message(value -> value.contains("must be declared with a positive 'value'")))));
 	}

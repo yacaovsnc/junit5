@@ -200,7 +200,7 @@ public class AggregatorIntegrationTests {
 
 	private List<ExecutionEvent> execute(DiscoverySelector... selectors) {
 		return ExecutionRecorder.execute(new JupiterTestEngine(),
-			request().selectors(selectors).build()).getExecutionEvents();
+			request().selectors(selectors).build()).events().list();
 	}
 
 	// -------------------------------------------------------------------------
