@@ -17,7 +17,7 @@ import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.testkit.Assertions.assertAll;
 import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
-import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
+import static org.junit.platform.testkit.ExecutionEventConditions.assertExecutionEventsMatchExactly;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -128,7 +128,7 @@ public final class Events {
 
 	@SafeVarargs
 	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
-		assertRecordedExecutionEventsContainsExactly(this.events, conditions);
+		assertExecutionEventsMatchExactly(this.events, conditions);
 	}
 
 	// --- Diagnostics ---------------------------------------------------------

@@ -50,7 +50,7 @@ public class ExecutionEventConditions {
 	}
 
 	@SafeVarargs
-	public static void assertRecordedExecutionEventsContainsExactly(List<ExecutionEvent> executionEvents,
+	public static void assertExecutionEventsMatchExactly(List<ExecutionEvent> executionEvents,
 			Condition<? super ExecutionEvent>... conditions) {
 		SoftAssertions softly = new SoftAssertions();
 		Assertions.assertThat(executionEvents).hasSize(conditions.length);

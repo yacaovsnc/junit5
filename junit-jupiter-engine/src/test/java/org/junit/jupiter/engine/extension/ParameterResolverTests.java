@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
-import static org.junit.platform.testkit.ExecutionEventConditions.assertRecordedExecutionEventsContainsExactly;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFailure;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
@@ -52,6 +51,7 @@ import org.junit.jupiter.engine.execution.injection.sample.NumberParameterResolv
 import org.junit.jupiter.engine.execution.injection.sample.PrimitiveArrayParameterResolver;
 import org.junit.jupiter.engine.execution.injection.sample.PrimitiveIntegerParameterResolver;
 import org.junit.platform.commons.util.ReflectionUtils;
+import org.junit.platform.testkit.Events;
 import org.junit.platform.testkit.ExecutionResults;
 
 /**
@@ -98,6 +98,7 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 	@Test
 	void executeTestsForNullValuedMethodInjectionCases() {
 		ExecutionResults executionResults = executeTestsForClass(NullMethodInjectionTestCase.class);
+		Events tests = executionResults.tests();
 
 		assertEquals(2, executionResults.getTestsStartedCount(), "# tests started");
 		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
@@ -109,7 +110,7 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 				s.contains("resolved a null value for parameter") &&
 				s.contains("but a primitive of type [int] is required");
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getTestsFailedEvents(),
+		tests.failed().assertEventsMatchExactly(
 			event(
 				test("injectPrimitive"),
 				finishedWithFailure(allOf(isA(ParameterResolutionException.class), message(expectations)))
@@ -139,6 +140,7 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 	void executeTestsForPotentiallyIncompatibleTypeMethodInjectionCases() {
 		ExecutionResults executionResults = executeTestsForClass(
 			PotentiallyIncompatibleTypeMethodInjectionTestCase.class);
+		Events tests = executionResults.tests();
 
 		assertEquals(3, executionResults.getTestsStartedCount(), "# tests started");
 		assertEquals(2, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
@@ -150,7 +152,7 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 				s.contains("resolved a value of type [java.lang.Integer]") &&
 				s.contains("but a value assignment compatible with [java.lang.Double] is required");
 
-		assertRecordedExecutionEventsContainsExactly(executionResults.getTestsFailedEvents(),
+		tests.failed().assertEventsMatchExactly(
 			event(
 				test("doubleParameterInjection"),
 				finishedWithFailure(allOf(isA(ParameterResolutionException.class), message(expectations)
