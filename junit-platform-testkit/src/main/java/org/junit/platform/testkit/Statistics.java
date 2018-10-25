@@ -19,40 +19,40 @@ import org.apiguardian.api.API;
  */
 @API(status = EXPERIMENTAL, since = "1.4")
 @FunctionalInterface
-public interface Statistics<T> {
+public interface Statistics {
 
-	void assertStatistic(T events);
+	void assertStatistic(Events events);
 
-	public static Statistics<Events> skipped(long expected) {
+	public static Statistics skipped(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.skipped()::stream, "skipped");
 	}
 
-	public static Statistics<Events> started(long expected) {
+	public static Statistics started(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.started()::stream, "started");
 	}
 
-	public static Statistics<Events> finished(long expected) {
+	public static Statistics finished(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.finished()::stream, "finished");
 	}
 
-	public static Statistics<Events> aborted(long expected) {
+	public static Statistics aborted(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.aborted()::stream, "aborted");
 	}
 
-	public static Statistics<Events> succeeded(long expected) {
+	public static Statistics succeeded(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.succeeded()::stream, "succeeded");
 	}
 
-	public static Statistics<Events> failed(long expected) {
+	public static Statistics failed(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.failed()::stream, "failed");
 	}
 
-	public static Statistics<Events> reportingEntryPublished(long expected) {
+	public static Statistics reportingEntryPublished(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.reportingEntryPublished()::stream,
 			"reporting entry published");
 	}
 
-	public static Statistics<Events> dynamicNodeRegistered(long expected) {
+	public static Statistics dynamicNodeRegistered(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.dynamicNodeRegistered()::stream,
 			"dynamic node registered");
 	}
