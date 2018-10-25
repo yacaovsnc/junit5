@@ -114,7 +114,7 @@ public final class Events {
 		return new Events(eventsByType(Type.REPORTING_ENTRY_PUBLISHED), this.category + " - Reporting Entry Published");
 	}
 
-	public Events dynamicTestRegistered() {
+	public Events dynamicNodeRegistered() {
 		return new Events(eventsByType(Type.DYNAMIC_TEST_REGISTERED), this.category + " - Dynamic Test Registered");
 	}
 

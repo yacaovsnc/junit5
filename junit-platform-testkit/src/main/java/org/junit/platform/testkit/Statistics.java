@@ -52,9 +52,9 @@ public interface Statistics<T> {
 			"reporting entry published");
 	}
 
-	public static Statistics<Events> dynamicTestRegistered(long expected) {
-		return events -> StatisticsUtils.assertStatistic(expected, events.dynamicTestRegistered()::stream,
-			"dynamic test registered");
+	public static Statistics<Events> dynamicNodeRegistered(long expected) {
+		return events -> StatisticsUtils.assertStatistic(expected, events.dynamicNodeRegistered()::stream,
+			"dynamic node registered");
 	}
 
 }

@@ -88,18 +88,6 @@ public class ExecutionResults {
 		return this.executionEvents;
 	}
 
-	// --- Reporting Entry Publication Events ----------------------------------
-
-	public long getReportingEntryPublicationCount() {
-		return events().reportingEntryPublished().count();
-	}
-
-	// --- Dynamic Registration Events -----------------------------------------
-
-	public long getDynamicTestRegistrationCount() {
-		return events().dynamicTestRegistered().count();
-	}
-
 	// --- Container Events ----------------------------------------------------
 
 	public long getContainersSkippedCount() {
