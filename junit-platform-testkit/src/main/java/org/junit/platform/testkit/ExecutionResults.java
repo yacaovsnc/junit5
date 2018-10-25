@@ -30,9 +30,8 @@ import org.junit.platform.engine.TestDescriptor;
 @API(status = EXPERIMENTAL, since = "1.4")
 public class ExecutionResults {
 
-	private static final String CATEGORY = "All";
-
 	private final List<ExecutionEvent> executionEvents;
+	private final Events allEvents;
 	private final Events testEvents;
 	private final Events containerEvents;
 
@@ -46,6 +45,8 @@ public class ExecutionResults {
 		Preconditions.containsNoNullElements(events, "ExecutionEvent list must not contain null elements");
 
 		this.executionEvents = Collections.unmodifiableList(events);
+
+		this.allEvents = new Events(events, "All");
 		this.testEvents = new Events(filterEvents(events, TestDescriptor::isTest), "Test");
 		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Contanier");
 	}
@@ -56,11 +57,11 @@ public class ExecutionResults {
 	 * Get all recorded events.
 	 */
 	public Events events() {
-		return new Events(this.executionEvents, CATEGORY);
+		return this.allEvents;
 	}
 
 	/**
-	 * Get the filtered results for all containers.
+	 * Get all recorded events for containers.
 	 *
 	 * <p>In this context, the word "container" applies to {@link TestDescriptor
 	 * TestDescriptors} that return {@code true} from
@@ -71,7 +72,7 @@ public class ExecutionResults {
 	}
 
 	/**
-	 * Get the filtered results for all tests.
+	 * Get all recorded events for tests.
 	 *
 	 * <p>In this context, the word "test" applies to {@link TestDescriptor
 	 * TestDescriptors} that return {@code true} from

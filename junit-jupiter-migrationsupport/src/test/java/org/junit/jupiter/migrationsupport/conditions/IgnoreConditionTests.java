@@ -71,7 +71,7 @@ class IgnoreConditionTests {
 		Events tests = executionResults.tests();
 
 		executionResults.events().debug();
-		// events.debug(System.err);
+		// executionResults.events().debug(System.err);
 
 		containers.debug();
 
