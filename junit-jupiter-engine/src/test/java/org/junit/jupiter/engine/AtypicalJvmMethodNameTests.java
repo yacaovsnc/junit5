@@ -32,7 +32,7 @@ class AtypicalJvmMethodNameTests extends AbstractJupiterTestEngineTests {
 	@Test
 	void kotlinTestWithMethodNameContainingSpecialCharacters() {
 		ExecutionResults executionResults = executeTestsForClass(ArbitraryNamingKotlinTestCase.class);
-		assertThat(executionResults.getTestsStartedCount()).isEqualTo(2);
+		assertThat(executionResults.tests().started().count()).isEqualTo(2);
 
 		TestDescriptor testDescriptor1 = executionResults.tests().succeeded().list().get(0).getTestDescriptor();
 		assertAll(//

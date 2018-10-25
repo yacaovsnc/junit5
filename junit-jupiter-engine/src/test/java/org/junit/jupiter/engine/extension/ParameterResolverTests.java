@@ -66,33 +66,33 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 	void constructorInjection() {
 		ExecutionResults executionResults = executeTestsForClass(ConstructorInjectionTestCase.class);
 
-		assertEquals(2, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(2, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(2, executionResults.tests().started().count(), "# tests started");
+		assertEquals(2, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
 	void constructorInjectionWithAnnotatedParameter() {
 		ExecutionResults executionResults = executeTestsForClass(AnnotatedParameterConstructorInjectionTestCase.class);
 
-		assertEquals(2, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(2, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(2, executionResults.tests().started().count(), "# tests started");
+		assertEquals(2, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
 	void executeTestsForMethodInjectionCases() {
 		ExecutionResults executionResults = executeTestsForClass(MethodInjectionTestCase.class);
 
-		assertEquals(7, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(6, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(1, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(7, executionResults.tests().started().count(), "# tests started");
+		assertEquals(6, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(1, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
@@ -100,9 +100,9 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTestsForClass(NullMethodInjectionTestCase.class);
 		Events tests = executionResults.tests();
 
-		assertEquals(2, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(1, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(2, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(1, executionResults.tests().failed().count(), "# tests failed");
 
 		// @formatter:off
 		Predicate<String> expectations = s ->
@@ -122,18 +122,18 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 	void executeTestsForPrimitiveIntegerMethodInjectionCases() {
 		ExecutionResults executionResults = executeTestsForClass(PrimitiveIntegerMethodInjectionTestCase.class);
 
-		assertEquals(1, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(1, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
 	void executeTestsForPrimitiveArrayMethodInjectionCases() {
 		ExecutionResults executionResults = executeTestsForClass(PrimitiveArrayMethodInjectionTestCase.class);
 
-		assertEquals(1, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(1, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
@@ -142,9 +142,9 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 			PotentiallyIncompatibleTypeMethodInjectionTestCase.class);
 		Events tests = executionResults.tests();
 
-		assertEquals(3, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(2, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(1, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(3, executionResults.tests().started().count(), "# tests started");
+		assertEquals(2, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(1, executionResults.tests().failed().count(), "# tests failed");
 
 		// @formatter:off
 		Predicate<String> expectations = s ->
@@ -164,33 +164,33 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 	void executeTestsForMethodInjectionInBeforeAndAfterEachMethods() {
 		ExecutionResults executionResults = executeTestsForClass(BeforeAndAfterMethodInjectionTestCase.class);
 
-		assertEquals(1, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(1, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
 	void executeTestsForMethodInjectionInBeforeAndAfterAllMethods() {
 		ExecutionResults executionResults = executeTestsForClass(BeforeAndAfterAllMethodInjectionTestCase.class);
 
-		assertEquals(1, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(1, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
 	void executeTestsForMethodWithExtendWithAnnotation() {
 		ExecutionResults executionResults = executeTestsForClass(ExtendWithOnMethodTestCase.class);
 
-		assertEquals(1, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(1, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	@Test
@@ -218,11 +218,11 @@ class ParameterResolverTests extends AbstractJupiterTestEngineTests {
 	}
 
 	private void assertEventsForParameterizedTypes(ExecutionResults executionResults) {
-		assertEquals(1, executionResults.getTestsStartedCount(), "# tests started");
-		assertEquals(1, executionResults.getTestsSuccessfulCount(), "# tests succeeded");
-		assertEquals(0, executionResults.getTestsSkippedCount(), "# tests skipped");
-		assertEquals(0, executionResults.getTestsAbortedCount(), "# tests aborted");
-		assertEquals(0, executionResults.getTestsFailedCount(), "# tests failed");
+		assertEquals(1, executionResults.tests().started().count(), "# tests started");
+		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
+		assertEquals(0, executionResults.tests().skipped().count(), "# tests skipped");
+		assertEquals(0, executionResults.tests().aborted().count(), "# tests aborted");
+		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 	}
 
 	// -------------------------------------------------------------------

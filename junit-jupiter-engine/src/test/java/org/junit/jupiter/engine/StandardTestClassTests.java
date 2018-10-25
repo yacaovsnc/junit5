@@ -78,7 +78,7 @@ class StandardTestClassTests extends AbstractJupiterTestEngineTests {
 
 		assertEquals(6, tests.started().count(), "# tests started");
 		assertEquals(2, tests.succeeded().count(), "# tests succeeded");
-		assertEquals(3, executionResults.getTestsAbortedCount(), "# tests aborted");
+		assertEquals(3, tests.aborted().count(), "# tests aborted");
 		assertEquals(1, tests.failed().count(), "# tests failed");
 
 		assertEquals(6, MyStandardTestCase.countBefore1, "# before1 calls");

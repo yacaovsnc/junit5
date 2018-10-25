@@ -47,8 +47,6 @@ public class ExecutionResults {
 		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Contanier");
 	}
 
-	// --- Fluent API ----------------------------------------------------------
-
 	/**
 	 * Get all recorded events.
 	 */
@@ -77,34 +75,6 @@ public class ExecutionResults {
 	public Events tests() {
 		return this.testEvents;
 	}
-
-	// --- Test Events ---------------------------------------------------------
-
-	public long getTestsSkippedCount() {
-		return tests().skipped().count();
-	}
-
-	public long getTestsStartedCount() {
-		return tests().started().count();
-	}
-
-	public long getTestsFinishedCount() {
-		return tests().finished().count();
-	}
-
-	public long getTestsSuccessfulCount() {
-		return tests().succeeded().count();
-	}
-
-	public long getTestsFailedCount() {
-		return tests().failed().count();
-	}
-
-	public long getTestsAbortedCount() {
-		return tests().aborted().count();
-	}
-
-	// --- Internals -----------------------------------------------------------
 
 	/**
 	 * Filter the supplied list of events using the supplied predicate.
