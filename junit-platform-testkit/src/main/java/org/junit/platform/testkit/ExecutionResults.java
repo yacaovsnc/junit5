@@ -80,14 +80,6 @@ public class ExecutionResults {
 
 	// --- Test Events ---------------------------------------------------------
 
-	public List<ExecutionEvent> getTestsSuccessfulEvents() {
-		return tests().succeeded().list();
-	}
-
-	public List<ExecutionEvent> getTestsFailedEvents() {
-		return tests().failed().list();
-	}
-
 	public long getTestsSkippedCount() {
 		return tests().skipped().count();
 	}
