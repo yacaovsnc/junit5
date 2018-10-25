@@ -74,6 +74,10 @@ public final class Events {
 		return stream().map(mapper);
 	}
 
+	public Executions executions() {
+		return new Executions(this.events, this.category);
+	}
+
 	// --- Statistics ----------------------------------------------------------
 
 	public long count() {

@@ -41,17 +41,9 @@ public class FilteredResults {
 		this.category = category;
 	}
 
-	// --- Accessors -----------------------------------------------------------
-
 	public Events events() {
 		return new Events(this.events, this.category);
 	}
-
-	public Executions executions() {
-		return new Executions(this.events, category);
-	}
-
-	// --- Internals -----------------------------------------------------------
 
 	/**
 	 * Filter the supplied list of events using the supplied predicate.

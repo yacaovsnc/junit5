@@ -78,32 +78,25 @@ public class ExecutionResults {
 		return this.testResults;
 	}
 
-	/**
-	 * Get all recorded executions.
-	 */
-	public Executions executions() {
-		return new Executions(this.executionEvents, CATEGORY);
-	}
-
-	// --- ALL Execution Events ------------------------------------------------
+	// --- ALL Events ----------------------------------------------------------
 
 	public List<ExecutionEvent> getExecutionEvents() {
 		return this.executionEvents;
 	}
 
-	// --- Reporting Entry Publication Execution Events ------------------------
+	// --- Reporting Entry Publication Events ----------------------------------
 
 	public long getReportingEntryPublicationCount() {
 		return events().reportingEntryPublished().count();
 	}
 
-	// --- Dynamic Test Execution Events ---------------------------------------
+	// --- Dynamic Registration Events -----------------------------------------
 
 	public long getDynamicTestRegistrationCount() {
 		return events().dynamicTestRegistered().count();
 	}
 
-	// --- Container Execution Events ------------------------------------------
+	// --- Container Events ----------------------------------------------------
 
 	public long getContainersSkippedCount() {
 		return containers().events().skipped().count();
@@ -125,7 +118,7 @@ public class ExecutionResults {
 		return containers().events().aborted().count();
 	}
 
-	// --- Test Execution Events -----------------------------------------------
+	// --- Test Events ---------------------------------------------------------
 
 	public List<ExecutionEvent> getTestsSuccessfulEvents() {
 		return tests().events().succeeded().list();

@@ -81,9 +81,9 @@ class IgnoreConditionTests {
 		tests.events().started().debug();
 		tests.events().succeeded().debug();
 
-		executionResults.executions().debug();
-		containers.executions().debug();
-		tests.executions().debug();
+		executionResults.events().executions().debug();
+		containers.events().executions().debug();
+		tests.events().executions().debug();
 
 		// @formatter:off
 		tests.events().assertEventsMatchExactly(
