@@ -11,9 +11,12 @@
 package org.junit.platform.testkit;
 
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
+import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
 import org.junit.platform.commons.util.Preconditions;
@@ -30,8 +33,8 @@ public class ExecutionResults {
 	private static final String CATEGORY = "All";
 
 	private final List<ExecutionEvent> executionEvents;
-	private final FilteredResults containerResults;
-	private final FilteredResults testResults;
+	private final Events testEvents;
+	private final Events containerEvents;
 
 	/**
 	 * Construct an {@link ExecutionResults} given a {@link List} of recorded {@link ExecutionEvent}s.
@@ -43,8 +46,8 @@ public class ExecutionResults {
 		Preconditions.containsNoNullElements(events, "ExecutionEvent list must not contain null elements");
 
 		this.executionEvents = Collections.unmodifiableList(events);
-		this.testResults = new FilteredResults(events, TestDescriptor::isTest, "Test");
-		this.containerResults = new FilteredResults(events, TestDescriptor::isContainer, "Container");
+		this.testEvents = new Events(filterEvents(events, TestDescriptor::isTest), "Test");
+		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Contanier");
 	}
 
 	// --- Fluent API ----------------------------------------------------------
@@ -63,8 +66,8 @@ public class ExecutionResults {
 	 * TestDescriptors} that return {@code true} from
 	 * {@link TestDescriptor#isContainer()}.
 	 */
-	public FilteredResults containers() {
-		return this.containerResults;
+	public Events containers() {
+		return this.containerEvents;
 	}
 
 	/**
@@ -74,8 +77,8 @@ public class ExecutionResults {
 	 * TestDescriptors} that return {@code true} from
 	 * {@link TestDescriptor#isTest()}.
 	 */
-	public FilteredResults tests() {
-		return this.testResults;
+	public Events tests() {
+		return this.testEvents;
 	}
 
 	// --- ALL Events ----------------------------------------------------------
@@ -99,57 +102,68 @@ public class ExecutionResults {
 	// --- Container Events ----------------------------------------------------
 
 	public long getContainersSkippedCount() {
-		return containers().events().skipped().count();
+		return containers().skipped().count();
 	}
 
 	public long getContainersStartedCount() {
-		return containers().events().started().count();
+		return containers().started().count();
 	}
 
 	public long getContainersFinishedCount() {
-		return containers().events().finished().count();
+		return containers().finished().count();
 	}
 
 	public long getContainersFailedCount() {
-		return containers().events().failed().count();
+		return containers().failed().count();
 	}
 
 	public long getContainersAbortedCount() {
-		return containers().events().aborted().count();
+		return containers().aborted().count();
 	}
 
 	// --- Test Events ---------------------------------------------------------
 
 	public List<ExecutionEvent> getTestsSuccessfulEvents() {
-		return tests().events().succeeded().list();
+		return tests().succeeded().list();
 	}
 
 	public List<ExecutionEvent> getTestsFailedEvents() {
-		return tests().events().failed().list();
+		return tests().failed().list();
 	}
 
 	public long getTestsSkippedCount() {
-		return tests().events().skipped().count();
+		return tests().skipped().count();
 	}
 
 	public long getTestsStartedCount() {
-		return tests().events().started().count();
+		return tests().started().count();
 	}
 
 	public long getTestsFinishedCount() {
-		return tests().events().finished().count();
+		return tests().finished().count();
 	}
 
 	public long getTestsSuccessfulCount() {
-		return tests().events().succeeded().count();
+		return tests().succeeded().count();
 	}
 
 	public long getTestsFailedCount() {
-		return tests().events().failed().count();
+		return tests().failed().count();
 	}
 
 	public long getTestsAbortedCount() {
-		return tests().events().aborted().count();
+		return tests().aborted().count();
+	}
+
+	// --- Internals -----------------------------------------------------------
+
+	/**
+	 * Filter the supplied list of events using the supplied predicate.
+	 */
+	private static Stream<ExecutionEvent> filterEvents(List<ExecutionEvent> events,
+			Predicate<? super TestDescriptor> predicate) {
+
+		return events.stream().filter(byTestDescriptor(predicate));
 	}
 
 }

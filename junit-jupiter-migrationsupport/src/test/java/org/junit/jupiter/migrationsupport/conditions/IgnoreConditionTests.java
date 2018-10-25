@@ -25,9 +25,9 @@ import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.engine.JupiterTestEngine;
+import org.junit.platform.testkit.Events;
 import org.junit.platform.testkit.ExecutionRecorder;
 import org.junit.platform.testkit.ExecutionResults;
-import org.junit.platform.testkit.FilteredResults;
 
 /**
  * Integration tests for JUnit 4's {@link Ignore @Ignore} support in JUnit
@@ -67,26 +67,26 @@ class IgnoreConditionTests {
 	@Test
 	void ignoredAndNotIgnoredTestMethods() {
 		ExecutionResults executionResults = executeTestsForClass(IgnoredMethodsTestCase.class);
-		FilteredResults containers = executionResults.containers();
-		FilteredResults tests = executionResults.tests();
+		Events containers = executionResults.containers();
+		Events tests = executionResults.tests();
 
 		executionResults.events().debug();
 		// events.debug(System.err);
 
-		containers.events().debug();
+		containers.debug();
 
-		// tests.events().debug(System.err);
-		tests.events().debug();
-		tests.events().skipped().debug();
-		tests.events().started().debug();
-		tests.events().succeeded().debug();
+		// tests.debug(System.err);
+		tests.debug();
+		tests.skipped().debug();
+		tests.started().debug();
+		tests.succeeded().debug();
 
 		executionResults.events().executions().debug();
-		containers.events().executions().debug();
-		tests.events().executions().debug();
+		containers.executions().debug();
+		tests.executions().debug();
 
 		// @formatter:off
-		tests.events().assertEventsMatchExactly(
+		tests.assertEventsMatchExactly(
 			event(test("ignoredWithCustomMessage"), skippedWithReason("Ignored Method")),
 			event(test("notIgnored"), started()),
 			event(test("notIgnored"), finishedSuccessfully()),

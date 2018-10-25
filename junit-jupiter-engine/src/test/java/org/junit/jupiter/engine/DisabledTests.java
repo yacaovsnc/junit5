@@ -36,31 +36,31 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 	void executeTestsWithDisabledTestClass() {
 		ExecutionResults results = executeTestsForClass(DisabledTestClassTestCase.class);
 
-		results.containers().events().assertStatistics(skipped(1));
-		results.tests().events().assertStatistics(started(0));
+		results.containers().assertStatistics(skipped(1));
+		results.tests().assertStatistics(started(0));
 	}
 
 	@Test
 	void executeTestsWithDisabledTestMethods() throws Exception {
-		Events testEvents = executeTestsForClass(DisabledTestMethodsTestCase.class).tests().events();
+		Events tests = executeTestsForClass(DisabledTestMethodsTestCase.class).tests();
 
 		// MANUAL APPROACH for asserting statistics
 		//
 		// @formatter:off
 		assertAll(
-			() -> assertEquals(1, testEvents.started().count(), "# tests started"),
-			() -> assertEquals(1, testEvents.skipped().count(), "# tests skipped"),
-			() -> assertEquals(1, testEvents.finished().count(), "# tests finished"),
-			() -> assertEquals(0, testEvents.aborted().count(), "# tests aborted"),
-			() -> assertEquals(1, testEvents.succeeded().count(), "# tests succeeded"),
-			() -> assertEquals(0, testEvents.failed().count(), "# tests failed")
+			() -> assertEquals(1, tests.started().count(), "# tests started"),
+			() -> assertEquals(1, tests.skipped().count(), "# tests skipped"),
+			() -> assertEquals(1, tests.finished().count(), "# tests finished"),
+			() -> assertEquals(0, tests.aborted().count(), "# tests aborted"),
+			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
+			() -> assertEquals(0, tests.failed().count(), "# tests failed")
 		);
 		// @formatter:on
 
 		// BUILT-IN APPROACH for asserting statistics
 		//
 		// @formatter:off
-		testEvents.assertStatistics(
+		tests.assertStatistics(
 			skipped(1),
 			started(1),
 			finished(1),
@@ -71,7 +71,7 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 		// @formatter:on
 
 		String method = DisabledTestMethodsTestCase.class.getDeclaredMethod("disabledTest").toString();
-		String reason = testEvents.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);
+		String reason = tests.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);
 		assertEquals(method + " is @Disabled", reason);
 	}
 

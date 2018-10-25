@@ -33,7 +33,7 @@ class ReportingTests extends AbstractJupiterTestEngineTests {
 
 	@Test
 	void reportEntriesArePublished() {
-		executeTestsForClass(MyReportingTestCase.class).tests().events().assertStatistics( //
+		executeTestsForClass(MyReportingTestCase.class).tests().assertStatistics( //
 			started(2), //
 			succeeded(2), //
 			failed(0), //
