@@ -88,28 +88,6 @@ public class ExecutionResults {
 		return this.executionEvents;
 	}
 
-	// --- Container Events ----------------------------------------------------
-
-	public long getContainersSkippedCount() {
-		return containers().skipped().count();
-	}
-
-	public long getContainersStartedCount() {
-		return containers().started().count();
-	}
-
-	public long getContainersFinishedCount() {
-		return containers().finished().count();
-	}
-
-	public long getContainersFailedCount() {
-		return containers().failed().count();
-	}
-
-	public long getContainersAbortedCount() {
-		return containers().aborted().count();
-	}
-
 	// --- Test Events ---------------------------------------------------------
 
 	public List<ExecutionEvent> getTestsSuccessfulEvents() {

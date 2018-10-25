@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
+import static org.junit.platform.testkit.Statistics.finished;
+import static org.junit.platform.testkit.Statistics.started;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -525,17 +527,16 @@ class TestInstanceLifecycleTests extends AbstractJupiterTestEngineTests {
 		assertThat(lifecyclesMap.get(nestedTestClass).stream()).allMatch(Lifecycle.PER_CLASS::equals);
 	}
 
-	private void performAssertions(Class<?> testClass, int containers, int tests,
+	private void performAssertions(Class<?> testClass, int numContainers, int numTests,
 			Map.Entry<Class<?>, Integer>[] instanceCountEntries, int allMethods, int eachMethods) {
 
 		ExecutionResults executionResults = executeTestsForClass(testClass);
 
+		executionResults.containers().assertStatistics(started(numContainers), finished(numContainers));
+		executionResults.tests().assertStatistics(started(numTests), finished(numTests));
+
 		// @formatter:off
 		assertAll(
-			() -> assertEquals(containers, executionResults.getContainersStartedCount(), "# containers started"),
-			() -> assertEquals(containers, executionResults.getContainersFinishedCount(), "# containers finished"),
-			() -> assertEquals(tests, executionResults.getTestsStartedCount(), "# tests started"),
-			() -> assertEquals(tests, executionResults.getTestsSuccessfulCount(), "# tests succeeded"),
 			() -> assertThat(instanceCount).describedAs("instance count").contains(instanceCountEntries),
 			() -> assertEquals(allMethods, beforeAllCount, "@BeforeAll count"),
 			() -> assertEquals(allMethods, afterAllCount, "@AfterAll count"),

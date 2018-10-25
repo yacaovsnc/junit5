@@ -10,7 +10,8 @@
 
 package org.junit.jupiter.engine;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.platform.testkit.Statistics.aborted;
+import static org.junit.platform.testkit.Statistics.started;
 
 import org.junit.Assume;
 import org.junit.jupiter.api.Assumptions;
@@ -28,18 +29,18 @@ class FailedAssumptionsTests extends AbstractJupiterTestEngineTests {
 
 	@Test
 	void testAbortedExceptionInBeforeAll() {
-		ExecutionResults executionResults = executeTestsForClass(TestAbortedExceptionInBeforeAllTestCase.class);
+		ExecutionResults results = executeTestsForClass(TestAbortedExceptionInBeforeAllTestCase.class);
 
-		assertEquals(1, executionResults.getContainersAbortedCount(), "# containers aborted");
-		assertEquals(0, executionResults.getTestsStartedCount(), "# tests started");
+		results.containers().assertStatistics(aborted(1));
+		results.tests().assertStatistics(started(0));
 	}
 
 	@Test
 	void assumptionViolatedExceptionInBeforeAll() {
-		ExecutionResults executionResults = executeTestsForClass(AssumptionViolatedExceptionInBeforeAllTestCase.class);
+		ExecutionResults results = executeTestsForClass(AssumptionViolatedExceptionInBeforeAllTestCase.class);
 
-		assertEquals(1, executionResults.getContainersAbortedCount(), "# containers aborted");
-		assertEquals(0, executionResults.getTestsStartedCount(), "# tests started");
+		results.containers().assertStatistics(aborted(1));
+		results.tests().assertStatistics(started(0));
 	}
 
 	// -------------------------------------------------------------------
