@@ -11,7 +11,6 @@
 package org.junit.jupiter.migrationsupport.rules;
 
 import static org.assertj.core.api.Assertions.allOf;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
@@ -53,10 +52,10 @@ class ExpectedExceptionSupportTests {
 
 		tests.assertStatistics(started(4), succeeded(1), aborted(0), failed(3));
 
-		assertThat(tests.succeeded().list()).have(
+		tests.succeeded().assertThatEvents().have(
 			event(test("correctExceptionExpectedThrown"), finishedSuccessfully()));
 
-		assertThat(tests.failed().list())//
+		tests.failed().assertThatEvents()//
 				.haveExactly(1, //
 					event(test("noExceptionExpectedButThrown"), //
 						finishedWithFailure(message("no exception expected")))) //
@@ -77,9 +76,9 @@ class ExpectedExceptionSupportTests {
 
 		tests.assertStatistics(started(2), succeeded(1), aborted(0), failed(1));
 
-		assertThat(tests.succeeded().list()).have(event(test("success"), finishedSuccessfully()));
+		tests.succeeded().assertThatEvents().have(event(test("success"), finishedSuccessfully()));
 
-		assertThat(tests.failed().list())//
+		tests.failed().assertThatEvents()//
 				.haveExactly(1, event(test("failure"), finishedWithFailure(message("must fail"))));
 	}
 

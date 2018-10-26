@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
 import org.assertj.core.api.Condition;
+import org.assertj.core.api.ListAssert;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
@@ -129,6 +130,10 @@ public final class Events {
 	@SafeVarargs
 	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
 		assertExecutionEventsMatchExactly(this.events, conditions);
+	}
+
+	public ListAssert<ExecutionEvent> assertThatEvents() {
+		return org.assertj.core.api.Assertions.assertThat(list());
 	}
 
 	// --- Diagnostics ---------------------------------------------------------
