@@ -22,9 +22,17 @@ import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestDescriptor;
 
 /**
- * Represents the entirety of multiple test or container execution runs.
+ * {@code ExecutionResults} provides a fluent API for processing the results of
+ * executing a test plan on the JUnit Platform for a given
+ * {@link org.junit.platform.engine.TestEngine TestEngine}.
  *
  * @since 1.4
+ * @see #events()
+ * @see #containers()
+ * @see #tests()
+ * @see ExecutionRecorder
+ * @see Events
+ * @see Executions
  */
 @API(status = EXPERIMENTAL, since = "1.4")
 public class ExecutionResults {
@@ -34,9 +42,11 @@ public class ExecutionResults {
 	private final Events containerEvents;
 
 	/**
-	 * Construct an {@link ExecutionResults} given a {@link List} of recorded {@link ExecutionEvent}s.
+	 * Construct {@link ExecutionResults} from the supplied list of recorded
+	 * {@linkplain ExecutionEvent execution events}.
 	 *
-	 * @param events the {@link List} of {@link ExecutionEvent}s to use when creating the execution graph, cannot be null
+	 * @param events the list of execution events; never {@code null} or
+	 * containing {@code null} elements
 	 */
 	ExecutionResults(List<ExecutionEvent> events) {
 		Preconditions.notNull(events, "ExecutionEvent list must not be null");
@@ -44,7 +54,6 @@ public class ExecutionResults {
 
 		this.allEvents = new Events(events, "All");
 		this.testEvents = new Events(filterEvents(events, TestDescriptor::isTest), "Test");
-		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Contanier");
 		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Container");
 	}
 
