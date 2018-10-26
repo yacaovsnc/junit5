@@ -45,6 +45,7 @@ public class ExecutionResults {
 		this.allEvents = new Events(events, "All");
 		this.testEvents = new Events(filterEvents(events, TestDescriptor::isTest), "Test");
 		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Contanier");
+		this.containerEvents = new Events(filterEvents(events, TestDescriptor::isContainer), "Container");
 	}
 
 	/**
