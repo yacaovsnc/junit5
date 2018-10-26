@@ -85,6 +85,10 @@ class IgnoreConditionTests {
 		containers.executions().debug();
 		tests.executions().debug();
 
+		executionResults.events().executions().assertThatExecutions().hasSize(5);
+		containers.executions().assertThatExecutions().hasSize(2);
+		tests.executions().assertThatExecutions().hasSize(3);
+
 		// @formatter:off
 		tests.assertEventsMatchExactly(
 			event(test("ignoredWithCustomMessage"), skippedWithReason("Ignored Method")),

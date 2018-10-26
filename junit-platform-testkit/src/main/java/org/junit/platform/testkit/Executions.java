@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
+import org.assertj.core.api.ListAssert;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
@@ -104,7 +105,11 @@ public final class Executions {
 
 	// --- Assertions ----------------------------------------------------------
 
-	// TODO Decide if we want to introduce built-in assertions for executions.
+	// TODO Decide if we want to introduce built-in assertions for Executions analogous to those for Events.
+
+	public ListAssert<Execution> assertThatExecutions() {
+		return org.assertj.core.api.Assertions.assertThat(list());
+	}
 
 	// --- Diagnostics ---------------------------------------------------------
 
