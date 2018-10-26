@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -69,9 +70,21 @@ public final class Executions {
 		return this.executions.stream();
 	}
 
-	// TODO Consider adding shortcut for executions.stream().map(mapper).
+	/**
+	 * Shortcut for {@code executions.stream().map(mapper)}.
+	 */
+	public <R> Stream<R> map(Function<? super Execution, ? extends R> mapper) {
+		Preconditions.notNull(mapper, "Mapping function must not be null");
+		return stream().map(mapper);
+	}
 
-	// TODO Consider adding shortcut for executions.stream().filter(predicate).
+	/**
+	 * Shortcut for {@code executions.stream().filter(predicate)}.
+	 */
+	public Stream<Execution> filter(Predicate<? super Execution> predicate) {
+		Preconditions.notNull(predicate, "Filter predicate must not be null");
+		return stream().filter(predicate);
+	}
 
 	// --- Statistics ----------------------------------------------------------
 
