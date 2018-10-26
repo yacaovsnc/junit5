@@ -75,6 +75,8 @@ public final class Events {
 		return stream().map(mapper);
 	}
 
+	// TODO Consider adding shortcut for events.stream().filter(predicate).
+
 	public Executions executions() {
 		return new Executions(this.events, this.category);
 	}
@@ -86,6 +88,11 @@ public final class Events {
 	}
 
 	// --- Built-in Filters ----------------------------------------------------
+
+	// TODO Consider introducing category-aware Events specializations (e.g.,
+	// SkippedEvents, FinishedEvents, etc.) in order to prevent broken use cases
+	// such as events.skipped().aborted() -- for example, SkippedEvents would not
+	// provide aborted() as part of its API since that would not make sense.
 
 	public Events skipped() {
 		return new Events(eventsByType(Type.SKIPPED), this.category + " Skipped");
@@ -115,6 +122,9 @@ public final class Events {
 		return new Events(eventsByType(Type.REPORTING_ENTRY_PUBLISHED), this.category + " - Reporting Entry Published");
 	}
 
+	// TODO Decide on naming for dynamically registered containers and tests, since
+	// "test" doesn't make sense if you've filtered by containers.
+	// Ideas: dynamicRegistration(), dynamicNodeRegistered().
 	public Events dynamicNodeRegistered() {
 		return new Events(eventsByType(Type.DYNAMIC_TEST_REGISTERED), this.category + " - Dynamic Test Registered");
 	}
@@ -123,6 +133,9 @@ public final class Events {
 
 	@SafeVarargs
 	@SuppressWarnings({ "varargs", "unchecked" }) // required for JDK 8
+	// TODO Consider splitting Statistics into GlobalStatistics and FilteredStatistics, so that
+	// statistics for tests and containers can be asserted together via ExecutionResults.events()
+	// instead of separately via ExecutionResults.containers() and ExecutionResults.tests().
 	public final void assertStatistics(Statistics... statistics) {
 		assertAll(this.category + " Statistics", Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
 	}

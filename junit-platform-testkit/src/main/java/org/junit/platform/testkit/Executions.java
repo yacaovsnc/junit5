@@ -66,6 +66,10 @@ public final class Executions {
 		return this.executions.stream();
 	}
 
+	// TODO Consider adding shortcut for executions.stream().map(mapper).
+
+	// TODO Consider adding shortcut for executions.stream().filter(predicate).
+
 	// --- Statistics ----------------------------------------------------------
 
 	public long count() {

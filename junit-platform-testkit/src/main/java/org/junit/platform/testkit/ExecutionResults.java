@@ -50,6 +50,7 @@ public class ExecutionResults {
 	/**
 	 * Get all recorded events.
 	 */
+	// TODO Consider renaming to global() or all().
 	public Events events() {
 		return this.allEvents;
 	}
