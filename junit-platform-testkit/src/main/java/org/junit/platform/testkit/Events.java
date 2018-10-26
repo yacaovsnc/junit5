@@ -19,7 +19,9 @@ import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
 import static org.junit.platform.testkit.ExecutionEventConditions.assertExecutionEventsMatchExactly;
 
-import java.io.PrintStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -151,13 +153,30 @@ public final class Events {
 
 	// --- Diagnostics ---------------------------------------------------------
 
+	/**
+	 * Print all events to {@link System#out}.
+	 */
 	public void debug() {
 		debug(System.out);
 	}
 
-	public void debug(PrintStream out) {
-		out.println(this.category + " Events:");
-		this.events.forEach(event -> out.printf("\t%s%n", event));
+	/**
+	 * Print all events to the supplied {@link OutputStream}.
+	 */
+	public void debug(OutputStream out) {
+		debug(new PrintWriter(out, true));
+	}
+
+	/**
+	 * Print all events to the supplied {@link Writer}.
+	 */
+	public void debug(Writer writer) {
+		debug(new PrintWriter(writer, true));
+	}
+
+	private void debug(PrintWriter printWriter) {
+		printWriter.println(this.category + " Events:");
+		this.events.forEach(event -> printWriter.printf("\t%s%n", event));
 	}
 
 	// --- Internals -----------------------------------------------------------

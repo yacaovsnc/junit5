@@ -13,7 +13,9 @@ package org.junit.platform.testkit;
 import static java.util.stream.Collectors.toList;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 
-import java.io.PrintStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,13 +115,30 @@ public final class Executions {
 
 	// --- Diagnostics ---------------------------------------------------------
 
+	/**
+	 * Print all executions to {@link System#out}.
+	 */
 	public void debug() {
 		debug(System.out);
 	}
 
-	public void debug(PrintStream out) {
-		out.println(this.category + " Executions:");
-		this.executions.forEach(event -> out.printf("\t%s%n", event));
+	/**
+	 * Print all executions to the supplied {@link OutputStream}.
+	 */
+	public void debug(OutputStream out) {
+		debug(new PrintWriter(out, true));
+	}
+
+	/**
+	 * Print all executions to the supplied {@link Writer}.
+	 */
+	public void debug(Writer writer) {
+		debug(new PrintWriter(writer, true));
+	}
+
+	private void debug(PrintWriter printWriter) {
+		printWriter.println(this.category + " Executions:");
+		this.executions.forEach(event -> printWriter.printf("\t%s%n", event));
 	}
 
 	// --- Internals -----------------------------------------------------------
