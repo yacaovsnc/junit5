@@ -370,7 +370,7 @@ class TestTemplateInvocationTests extends AbstractJupiterTestEngineTests {
 
 	private TestDescriptor findTestDescriptor(ExecutionResults executionResults, Condition<ExecutionEvent> condition) {
 		// @formatter:off
-		return executionResults.events().stream()
+		return executionResults.events()
 				.filter(condition::matches)
 				.findAny()
 				.map(ExecutionEvent::getTestDescriptor)

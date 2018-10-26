@@ -39,7 +39,7 @@ class OverloadedTestMethodTests extends AbstractJupiterTestEngineTests {
 
 		tests.assertStatistics(started(2), succeeded(2), failed(0));
 
-		Optional<ExecutionEvent> first = tests.succeeded().stream().filter(
+		Optional<ExecutionEvent> first = tests.succeeded().filter(
 			event -> event.getTestDescriptor().getUniqueId().toString().contains(TestInfo.class.getName())).findFirst();
 		assertTrue(first.isPresent());
 		TestIdentifier testIdentifier = TestIdentifier.from(first.get().getTestDescriptor());
@@ -49,7 +49,7 @@ class OverloadedTestMethodTests extends AbstractJupiterTestEngineTests {
 
 		tests.assertStatistics(started(1), succeeded(1), failed(0));
 
-		first = tests.succeeded().stream().filter(
+		first = tests.succeeded().filter(
 			event -> event.getTestDescriptor().getUniqueId().toString().contains(TestInfo.class.getName())).findFirst();
 		assertTrue(first.isPresent());
 	}

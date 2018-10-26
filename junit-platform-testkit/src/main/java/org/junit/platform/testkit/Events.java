@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
@@ -74,10 +75,17 @@ public final class Events {
 	 * Shortcut for {@code events.stream().map(mapper)}.
 	 */
 	public <R> Stream<R> map(Function<? super ExecutionEvent, ? extends R> mapper) {
+		Preconditions.notNull(mapper, "Mapping function must not be null");
 		return stream().map(mapper);
 	}
 
-	// TODO Consider adding shortcut for events.stream().filter(predicate).
+	/**
+	 * Shortcut for {@code events.stream().filter(predicate)}.
+	 */
+	public Stream<ExecutionEvent> filter(Predicate<? super ExecutionEvent> predicate) {
+		Preconditions.notNull(predicate, "Filter predicate must not be null");
+		return stream().filter(predicate);
+	}
 
 	public Executions executions() {
 		return new Executions(this.events, this.category);
