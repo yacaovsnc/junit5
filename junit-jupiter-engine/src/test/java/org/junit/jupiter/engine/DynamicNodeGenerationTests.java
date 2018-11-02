@@ -105,7 +105,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		assertAll( //
 			() -> assertEquals(3, containers.started().count(), "# container started"),
-			() -> assertEquals(2, tests.dynamicNodeRegistered().count(), "# dynamic registered"),
+			() -> assertEquals(2, tests.dynamicallyRegistered().count(), "# dynamic registered"),
 			() -> assertEquals(2, tests.started().count(), "# tests started"),
 			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
 			() -> assertEquals(1, tests.failed().count(), "# tests failed"),
@@ -120,7 +120,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		assertAll( //
 			() -> assertEquals(3, containers.started().count(), "# container started"),
-			() -> assertEquals(2, tests.dynamicNodeRegistered().count(), "# dynamic registered"),
+			() -> assertEquals(2, tests.dynamicallyRegistered().count(), "# dynamic registered"),
 			() -> assertEquals(2, tests.started().count(), "# tests started"),
 			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
 			() -> assertEquals(1, tests.failed().count(), "# tests failed"),
@@ -136,7 +136,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 		// @TestFactory methods are counted as both container and test
 		assertAll( //
 			() -> assertEquals(3, containers.started().count(), "# container started"),
-			() -> assertEquals(2, tests.dynamicNodeRegistered().count(), "# dynamic registered"),
+			() -> assertEquals(2, tests.dynamicallyRegistered().count(), "# dynamic registered"),
 			() -> assertEquals(2, tests.started().count(), "# tests started"),
 			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
 			() -> assertEquals(1, tests.failed().count(), "# tests failed"),
@@ -189,8 +189,8 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		assertAll( //
 			() -> assertEquals(4, containers.started().count(), "# container started"),
-			() -> assertEquals(1, containers.dynamicNodeRegistered().count(), "# dynamic containers registered"),
-			() -> assertEquals(2, tests.dynamicNodeRegistered().count(), "# dynamic tests registered"),
+			() -> assertEquals(1, containers.dynamicallyRegistered().count(), "# dynamic containers registered"),
+			() -> assertEquals(2, tests.dynamicallyRegistered().count(), "# dynamic tests registered"),
 			() -> assertEquals(2, tests.started().count(), "# tests started"),
 			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
 			() -> assertEquals(1, tests.failed().count(), "# tests failed"),
@@ -283,8 +283,8 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		assertAll( //
 			() -> assertEquals(5, containers.started().count(), "# container started"),
-			() -> assertEquals(2, containers.dynamicNodeRegistered().count(), "# dynamic containers registered"),
-			() -> assertEquals(2, tests.dynamicNodeRegistered().count(), "# dynamic tests registered"),
+			() -> assertEquals(2, containers.dynamicallyRegistered().count(), "# dynamic containers registered"),
+			() -> assertEquals(2, tests.dynamicallyRegistered().count(), "# dynamic tests registered"),
 			() -> assertEquals(2, tests.started().count(), "# tests started"),
 			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
 			() -> assertEquals(1, tests.failed().count(), "# tests failed"),
@@ -294,7 +294,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 	@Test
 	void legacyReportingNames() {
 		Events dynamicRegistrations = executeTests(selectMethod(MyDynamicTestCase.class, "nestedDynamicContainers"))//
-				.events().dynamicNodeRegistered();
+				.events().dynamicallyRegistered();
 
 		// @formatter:off
 		Stream<String> legacyReportingNames = dynamicRegistrations
@@ -335,8 +335,8 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		assertAll( //
 			() -> assertEquals(4, containers.started().count(), "# container started"),
-			() -> assertEquals(1, containers.dynamicNodeRegistered().count(), "# dynamic containers registered"),
-			() -> assertEquals(2, tests.dynamicNodeRegistered().count(), "# dynamic tests registered"),
+			() -> assertEquals(1, containers.dynamicallyRegistered().count(), "# dynamic containers registered"),
+			() -> assertEquals(2, tests.dynamicallyRegistered().count(), "# dynamic tests registered"),
 			() -> assertEquals(2, tests.started().count(), "# tests started"),
 			() -> assertEquals(1, tests.succeeded().count(), "# tests succeeded"),
 			() -> assertEquals(1, tests.failed().count(), "# tests failed"),

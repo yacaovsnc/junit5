@@ -30,6 +30,7 @@ import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFa
 import static org.junit.platform.testkit.ExecutionEventConditions.skippedWithReason;
 import static org.junit.platform.testkit.ExecutionEventConditions.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
+import static org.junit.platform.testkit.Statistics.dynamicallyRegistered;
 import static org.junit.platform.testkit.TestExecutionResultConditions.message;
 
 import java.lang.reflect.Field;
@@ -69,6 +70,7 @@ import org.junit.jupiter.engine.descriptor.TestTemplateInvocationTestDescriptor;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.testkit.Events;
 import org.junit.platform.testkit.ExecutionEvent;
 import org.junit.platform.testkit.ExecutionResults;
 import org.opentest4j.AssertionFailedError;
@@ -148,8 +150,16 @@ class TestTemplateInvocationTests extends AbstractJupiterTestEngineTests {
 		LauncherDiscoveryRequest request = request().selectors(
 			selectMethod(MyTestTemplateTestCase.class, "templateWithTwoRegisteredExtensions")).build();
 
+		ExecutionResults results = executeTests(request);
+		Events events = results.events();
+
+		events.assertStatistics(dynamicallyRegistered(2));
+		//  events.dynamicallyRegistered().debug();
+		//  results.tests().dynamicallyRegistered().debug();
+		//  results.containers().dynamicallyRegistered().debug();
+
 		// @formatter:off
-		Stream<String> legacyReportingNames = executeTests(request).events().dynamicNodeRegistered()
+		Stream<String> legacyReportingNames = events.dynamicallyRegistered()
 				.map(ExecutionEvent::getTestDescriptor)
 				.map(TestDescriptor::getLegacyReportingName);
 		// @formatter:off

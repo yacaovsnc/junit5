@@ -129,14 +129,11 @@ public final class Events {
 	}
 
 	public Events reportingEntryPublished() {
-		return new Events(eventsByType(Type.REPORTING_ENTRY_PUBLISHED), this.category + " - Reporting Entry Published");
+		return new Events(eventsByType(Type.REPORTING_ENTRY_PUBLISHED), this.category + " Reporting Entry Published");
 	}
 
-	// TODO Decide on naming for dynamically registered containers and tests, since
-	// "test" doesn't make sense if you've filtered by containers.
-	// Ideas: dynamicRegistration(), dynamicNodeRegistered().
-	public Events dynamicNodeRegistered() {
-		return new Events(eventsByType(Type.DYNAMIC_TEST_REGISTERED), this.category + " - Dynamic Test Registered");
+	public Events dynamicallyRegistered() {
+		return new Events(eventsByType(Type.DYNAMIC_TEST_REGISTERED), this.category + " Dynamically Registered");
 	}
 
 	// --- Assertions ----------------------------------------------------------
