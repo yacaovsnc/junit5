@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -138,6 +139,12 @@ public final class Events {
 	public final void assertStatistics(EventStatistics... statistics) {
 		assertAll(this.category + " Event Statistics",
 			Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
+	}
+
+	public void assertStats(Consumer<EventStats> consumer) {
+		EventStats stats = new EventStats(this, this.category);
+		consumer.accept(stats);
+		stats.assertAll();
 	}
 
 	@SafeVarargs

@@ -57,7 +57,7 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 		);
 		// @formatter:on
 
-		// BUILT-IN APPROACH for asserting statistics
+		// BUILT-IN APPROACH for asserting statistics -- with static imports
 		//
 		// @formatter:off
 		tests.assertStatistics(
@@ -69,6 +69,10 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 			failed(0)
 		);
 		// @formatter:on
+
+		// BUILT-IN APPROACH for asserting statistics -- with fluent API
+		//
+		tests.assertStats(stats -> stats.skipped(1).started(1).finished(1).aborted(0).succeeded(1).failed(0));
 
 		String method = DisabledTestMethodsTestCase.class.getDeclaredMethod("disabledTest").toString();
 		String reason = tests.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);
