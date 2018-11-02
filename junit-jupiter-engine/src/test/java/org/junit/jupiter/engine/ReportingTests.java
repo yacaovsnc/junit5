@@ -12,10 +12,6 @@ package org.junit.jupiter.engine;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.reportingEntryPublished;
-import static org.junit.platform.testkit.EventStatistics.started;
-import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +29,11 @@ class ReportingTests extends AbstractJupiterTestEngineTests {
 
 	@Test
 	void reportEntriesArePublished() {
-		executeTestsForClass(MyReportingTestCase.class).tests().assertStatistics( //
-			started(2), //
-			succeeded(2), //
-			failed(0), //
-			reportingEntryPublished(7));
+		executeTestsForClass(MyReportingTestCase.class).tests().assertStatistics(stats -> stats //
+				.started(2) //
+				.succeeded(2) //
+				.failed(0) //
+				.reportingEntryPublished(7));
 	}
 
 	static class MyReportingTestCase {

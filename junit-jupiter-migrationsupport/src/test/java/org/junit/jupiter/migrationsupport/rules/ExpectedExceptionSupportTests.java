@@ -14,10 +14,6 @@ import static org.assertj.core.api.Assertions.allOf;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.EventStatistics.aborted;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.started;
-import static org.junit.platform.testkit.EventStatistics.succeeded;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedSuccessfully;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFailure;
@@ -50,7 +46,7 @@ class ExpectedExceptionSupportTests {
 	void expectedExceptionIsProcessedCorrectly() {
 		Events tests = executeTestsForClass(ExpectedExceptionTestCase.class);
 
-		tests.assertStatistics(started(4), succeeded(1), aborted(0), failed(3));
+		tests.assertStatistics(stats -> stats.started(4).succeeded(1).aborted(0).failed(3));
 
 		tests.succeeded().assertThatEvents().have(
 			event(test("correctExceptionExpectedThrown"), finishedSuccessfully()));
@@ -74,7 +70,7 @@ class ExpectedExceptionSupportTests {
 		Class<?> testClass = ExpectedExceptionSupportWithoutExpectedExceptionRuleTestCase.class;
 		Events tests = executeTestsForClass(testClass);
 
-		tests.assertStatistics(started(2), succeeded(1), aborted(0), failed(1));
+		tests.assertStatistics(stats -> stats.started(2).succeeded(1).aborted(0).failed(1));
 
 		tests.succeeded().assertThatEvents().have(event(test("success"), finishedSuccessfully()));
 

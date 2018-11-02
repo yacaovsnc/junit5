@@ -13,12 +13,6 @@ package org.junit.jupiter.engine;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.platform.testkit.EventStatistics.aborted;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.finished;
-import static org.junit.platform.testkit.EventStatistics.skipped;
-import static org.junit.platform.testkit.EventStatistics.started;
-import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -36,8 +30,8 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 	void executeTestsWithDisabledTestClass() {
 		ExecutionResults results = executeTestsForClass(DisabledTestClassTestCase.class);
 
-		results.containers().assertStatistics(skipped(1));
-		results.tests().assertStatistics(started(0));
+		results.containers().assertStatistics(stats -> stats.skipped(1));
+		results.tests().assertStatistics(stats -> stats.started(0));
 	}
 
 	@Test
@@ -57,23 +51,9 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 		);
 		// @formatter:on
 
-		// BUILT-IN APPROACH for asserting statistics -- with static imports
+		// BUILT-IN APPROACH for asserting statistics
 		//
-		// @formatter:off
-		tests.assertStatistics(
-			skipped(1),
-			started(1),
-			finished(1),
-			aborted(0),
-			succeeded(1),
-			failed(0)
-		);
-		// @formatter:on
-
-		// BUILT-IN APPROACH for asserting statistics -- with fluent API
-		//
-		// tests.assertStats(stats -> stats.skipped(11).started(11).finished(11).aborted(10).succeeded(11).failed(10));
-		tests.assertStats(stats -> stats.skipped(1).started(1).finished(1).aborted(0).succeeded(1).failed(0));
+		tests.assertStatistics(stats -> stats.skipped(1).started(1).finished(1).aborted(0).succeeded(1).failed(0));
 
 		String method = DisabledTestMethodsTestCase.class.getDeclaredMethod("disabledTest").toString();
 		String reason = tests.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);

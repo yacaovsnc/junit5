@@ -17,9 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.skipped;
-import static org.junit.platform.testkit.EventStatistics.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFailure;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
@@ -52,7 +49,7 @@ class ScriptExecutionConditionTests extends AbstractJupiterTestEngineTests {
 	void executeSimpleTestCases() {
 		Events tests = executeTestsForClass(SimpleTestCases.class).tests();
 
-		tests.assertStatistics(started(3), skipped(1), failed(1));
+		tests.assertStatistics(stats -> stats.started(3).skipped(1).failed(1));
 
 		tests.failed().assertEventsMatchExactly( //
 			event(test("syntaxError"), //

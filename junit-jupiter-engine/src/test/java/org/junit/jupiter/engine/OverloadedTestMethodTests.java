@@ -13,9 +13,6 @@ package org.junit.jupiter.engine;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.started;
-import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import java.util.Optional;
 
@@ -37,7 +34,7 @@ class OverloadedTestMethodTests extends AbstractJupiterTestEngineTests {
 	void executeTestCaseWithOverloadedMethodsAndThenRerunOnlyOneOfTheMethodsSelectedByUniqueId() {
 		Events tests = executeTestsForClass(TestCase.class).tests();
 
-		tests.assertStatistics(started(2), succeeded(2), failed(0));
+		tests.assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
 
 		Optional<ExecutionEvent> first = tests.succeeded().filter(
 			event -> event.getTestDescriptor().getUniqueId().toString().contains(TestInfo.class.getName())).findFirst();
@@ -47,7 +44,7 @@ class OverloadedTestMethodTests extends AbstractJupiterTestEngineTests {
 
 		tests = executeTests(selectUniqueId(uniqueId)).tests();
 
-		tests.assertStatistics(started(1), succeeded(1), failed(0));
+		tests.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
 
 		first = tests.succeeded().filter(
 			event -> event.getTestDescriptor().getUniqueId().toString().contains(TestInfo.class.getName())).findFirst();
@@ -59,7 +56,7 @@ class OverloadedTestMethodTests extends AbstractJupiterTestEngineTests {
 		String fqmn = TestCase.class.getName() + "#test(" + TestInfo.class.getName() + ")";
 		Events tests = executeTests(selectMethod(fqmn)).tests();
 
-		tests.assertStatistics(started(1), succeeded(1), failed(0));
+		tests.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
 
 		Optional<ExecutionEvent> first = tests.succeeded().stream().filter(
 			event -> event.getTestDescriptor().getUniqueId().toString().contains(TestInfo.class.getName())).findFirst();

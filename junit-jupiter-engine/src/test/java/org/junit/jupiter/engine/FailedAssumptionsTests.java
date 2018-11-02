@@ -10,9 +10,6 @@
 
 package org.junit.jupiter.engine;
 
-import static org.junit.platform.testkit.EventStatistics.aborted;
-import static org.junit.platform.testkit.EventStatistics.started;
-
 import org.junit.Assume;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,16 +28,16 @@ class FailedAssumptionsTests extends AbstractJupiterTestEngineTests {
 	void testAbortedExceptionInBeforeAll() {
 		ExecutionResults results = executeTestsForClass(TestAbortedExceptionInBeforeAllTestCase.class);
 
-		results.containers().assertStatistics(aborted(1));
-		results.tests().assertStatistics(started(0));
+		results.containers().assertStatistics(stats -> stats.aborted(1));
+		results.tests().assertStatistics(stats -> stats.started(0));
 	}
 
 	@Test
 	void assumptionViolatedExceptionInBeforeAll() {
 		ExecutionResults results = executeTestsForClass(AssumptionViolatedExceptionInBeforeAllTestCase.class);
 
-		results.containers().assertStatistics(aborted(1));
-		results.tests().assertStatistics(started(0));
+		results.containers().assertStatistics(stats -> stats.aborted(1));
+		results.tests().assertStatistics(stats -> stats.started(0));
 	}
 
 	// -------------------------------------------------------------------

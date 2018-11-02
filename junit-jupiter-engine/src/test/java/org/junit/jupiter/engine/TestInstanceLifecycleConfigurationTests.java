@@ -17,9 +17,6 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.finished;
-import static org.junit.platform.testkit.EventStatistics.started;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,15 +131,12 @@ class TestInstanceLifecycleConfigurationTests extends AbstractJupiterTestEngineT
 				.configurationParameters(configParams)
 				.build()
 		);
-
-		executionResults.containers().assertStatistics(
-			started(numContainers),
-			finished(numContainers),
-			failed(numFailedContainers));
-		executionResults.tests().assertStatistics(
-			started(numTests),
-			finished(numTests));
 		// @formatter:on
+
+		executionResults.containers().assertStatistics(//
+			stats -> stats.started(numContainers).finished(numContainers).failed(numFailedContainers));
+		executionResults.tests().assertStatistics(//
+			stats -> stats.started(numTests).finished(numTests));
 
 		assertEquals(Arrays.asList(methods), methodsInvoked);
 	}

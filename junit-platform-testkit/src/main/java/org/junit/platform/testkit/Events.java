@@ -14,7 +14,6 @@ import static java.util.function.Predicate.isEqual;
 import static java.util.stream.Collectors.toList;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 import static org.junit.platform.commons.util.FunctionUtils.where;
-import static org.junit.platform.testkit.Assertions.assertAll;
 import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
 import static org.junit.platform.testkit.ExecutionEventConditions.assertExecutionEventsMatchExactly;
@@ -22,7 +21,6 @@ import static org.junit.platform.testkit.ExecutionEventConditions.assertExecutio
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -138,17 +136,10 @@ public final class Events {
 
 	// --- Assertions ----------------------------------------------------------
 
-	@SafeVarargs
-	@SuppressWarnings({ "varargs", "unchecked" }) // required for JDK 8
-	public final void assertStatistics(EventStatistics... statistics) {
-		assertAll(this.category + " Event Statistics",
-			Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
-	}
-
-	public void assertStats(Consumer<EventStats> consumer) {
-		EventStats stats = new EventStats(this, this.category);
-		consumer.accept(stats);
-		stats.assertAll();
+	public void assertStatistics(Consumer<EventStatistics> statisticsConsumer) {
+		EventStatistics eventStatistics = new EventStatistics(this, this.category);
+		statisticsConsumer.accept(eventStatistics);
+		eventStatistics.assertAll();
 	}
 
 	@SafeVarargs

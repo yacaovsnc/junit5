@@ -20,7 +20,6 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.EventStatistics.dynamicallyRegistered;
 import static org.junit.platform.testkit.ExecutionEventConditions.container;
 import static org.junit.platform.testkit.ExecutionEventConditions.displayName;
 import static org.junit.platform.testkit.ExecutionEventConditions.dynamicTestRegistered;
@@ -153,7 +152,7 @@ class TestTemplateInvocationTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults results = executeTests(request);
 		Events events = results.all();
 
-		events.assertStatistics(dynamicallyRegistered(2));
+		events.assertStatistics(stats -> stats.dynamicallyRegistered(2));
 		//  events.dynamicallyRegistered().debug();
 		//  results.tests().dynamicallyRegistered().debug();
 		//  results.containers().dynamicallyRegistered().debug();

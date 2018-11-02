@@ -14,10 +14,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.engine.Constants.DEACTIVATE_CONDITIONS_PATTERN_PROPERTY_NAME;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.skipped;
-import static org.junit.platform.testkit.EventStatistics.started;
-import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,15 +54,15 @@ class ExecutionConditionTests extends AbstractJupiterTestEngineTests {
 	void conditionWorksOnContainer() {
 		ExecutionResults executionResults = executeTestsForClass(TestCaseWithExecutionConditionOnClass.class);
 
-		executionResults.containers().assertStatistics(skipped(1));
-		executionResults.tests().assertStatistics(started(0));
+		executionResults.containers().assertStatistics(stats -> stats.skipped(1));
+		executionResults.tests().assertStatistics(stats -> stats.started(0));
 	}
 
 	@Test
 	void conditionWorksOnTest() {
 		Events tests = executeTestsForClass(TestCaseWithExecutionConditionOnMethods.class).tests();
 
-		tests.assertStatistics(started(2), succeeded(2), skipped(3));
+		tests.assertStatistics(stats -> stats.started(2).succeeded(2).skipped(3));
 	}
 
 	@Test
@@ -120,8 +116,8 @@ class ExecutionConditionTests extends AbstractJupiterTestEngineTests {
 		Events containers = executionResults.containers();
 		Events tests = executionResults.tests();
 
-		containers.assertStatistics(skipped(0), started(2));
-		tests.assertStatistics(started(testStartedCount), failed(testFailedCount));
+		containers.assertStatistics(stats -> stats.skipped(0).started(2));
+		tests.assertStatistics(stats -> stats.started(testStartedCount).failed(testFailedCount));
 	}
 
 	private void assertExecutionConditionOverride(String deactivatePattern, int started, int succeeded, int failed) {
@@ -132,7 +128,8 @@ class ExecutionConditionTests extends AbstractJupiterTestEngineTests {
 				.build();
 		// @formatter:on
 
-		executeTests(request).tests().assertStatistics(started(started), succeeded(succeeded), failed(failed));
+		executeTests(request).tests().assertStatistics(
+			stats -> stats.started(started).succeeded(succeeded).failed(failed));
 	}
 
 	// -------------------------------------------------------------------

@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
-import static org.junit.platform.testkit.EventStatistics.finished;
-import static org.junit.platform.testkit.EventStatistics.started;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -532,8 +530,8 @@ class TestInstanceLifecycleTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTestsForClass(testClass);
 
-		executionResults.containers().assertStatistics(started(numContainers), finished(numContainers));
-		executionResults.tests().assertStatistics(started(numTests), finished(numTests));
+		executionResults.containers().assertStatistics(stats -> stats.started(numContainers).finished(numContainers));
+		executionResults.tests().assertStatistics(stats -> stats.started(numTests).finished(numTests));
 
 		// @formatter:off
 		assertAll(

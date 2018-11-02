@@ -15,8 +15,6 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
-import static org.junit.platform.testkit.EventStatistics.failed;
-import static org.junit.platform.testkit.EventStatistics.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.container;
 import static org.junit.platform.testkit.ExecutionEventConditions.engine;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
@@ -59,7 +57,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTests(selectMethod(FailureTestCase.class, "failingTest"));
 		Events tests = executionResults.tests();
 
-		tests.assertStatistics(started(1), failed(1));
+		tests.assertStatistics(stats -> stats.started(1).failed(1));
 
 		tests.failed().assertEventsMatchExactly( //
 			event(test("failingTest"),
@@ -72,7 +70,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 			selectMethod(FailureTestCase.class, "testWithUncheckedException"));
 		Events tests = executionResults.tests();
 
-		tests.assertStatistics(started(1), failed(1));
+		tests.assertStatistics(stats -> stats.started(1).failed(1));
 
 		tests.failed().assertEventsMatchExactly( //
 			event(test("testWithUncheckedException"),
@@ -85,7 +83,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 			selectMethod(FailureTestCase.class, "testWithCheckedException"));
 		Events tests = executionResults.tests();
 
-		tests.assertStatistics(started(1), failed(1));
+		tests.assertStatistics(stats -> stats.started(1).failed(1));
 
 		tests.failed().assertEventsMatchExactly( //
 			event(test("testWithCheckedException"),
@@ -99,7 +97,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTests(selectMethod(FailureTestCase.class, "succeedingTest"));
 		Events tests = executionResults.tests();
 
-		tests.assertStatistics(started(1), failed(1));
+		tests.assertStatistics(stats -> stats.started(1).failed(1));
 
 		tests.failed().assertEventsMatchExactly(
 			event(test("succeedingTest"), finishedWithFailure(allOf(isA(IOException.class), message("checked")))));
@@ -112,7 +110,7 @@ class ExceptionHandlingTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTests(selectMethod(FailureTestCase.class, "succeedingTest"));
 		Events tests = executionResults.tests();
 
-		tests.assertStatistics(started(1), failed(1));
+		tests.assertStatistics(stats -> stats.started(1).failed(1));
 
 		tests.failed().assertEventsMatchExactly(
 			event(test("succeedingTest"), finishedWithFailure(allOf(isA(IOException.class), message("checked")))));
