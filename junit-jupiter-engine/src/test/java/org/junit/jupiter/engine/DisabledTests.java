@@ -56,7 +56,7 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 		tests.assertStatistics(stats -> stats.skipped(1).started(1).finished(1).aborted(0).succeeded(1).failed(0));
 
 		String method = DisabledTestMethodsTestCase.class.getDeclaredMethod("disabledTest").toString();
-		String reason = tests.skipped().map(e -> e.getPayloadAs(String.class)).findFirst().orElse(null);
+		String reason = tests.skipped().map(e -> e.getRequiredPayload(String.class)).findFirst().orElse(null);
 		assertEquals(method + " is @Disabled", reason);
 	}
 

@@ -37,8 +37,6 @@ import org.junit.platform.engine.reporting.ReportEntry;
 @API(status = EXPERIMENTAL, since = "1.4")
 public class ExecutionRecorder implements EngineExecutionListener {
 
-	private final List<ExecutionEvent> events = new CopyOnWriteArrayList<>();
-
 	/**
 	 * Execute tests for a given {@link EngineDiscoveryRequest} using the
 	 * provided {@link TestEngine}.
@@ -63,10 +61,13 @@ public class ExecutionRecorder implements EngineExecutionListener {
 		testEngine.execute(request);
 	}
 
+	// -------------------------------------------------------------------------
+
+	private final List<ExecutionEvent> events = new CopyOnWriteArrayList<>();
+
 	/**
-	 * Record an {@link ExecutionEvent} for a dynamically registered test.
-	 *
-	 * @param testDescriptor the descriptor of the dynamically registered test
+	 * Record an {@link ExecutionEvent} for a dynamically registered container
+	 * or test.
 	 */
 	@Override
 	public void dynamicTestRegistered(TestDescriptor testDescriptor) {
@@ -75,9 +76,6 @@ public class ExecutionRecorder implements EngineExecutionListener {
 
 	/**
 	 * Record an {@link ExecutionEvent} for a container or test that was skipped.
-	 *
-	 * @param testDescriptor the descriptor of the skipped test or container
-	 * @param reason a human-readable message describing why the execution was skipped
 	 */
 	@Override
 	public void executionSkipped(TestDescriptor testDescriptor, String reason) {
@@ -86,8 +84,6 @@ public class ExecutionRecorder implements EngineExecutionListener {
 
 	/**
 	 * Record an {@link ExecutionEvent} for a container or test that started.
-	 *
-	 * @param testDescriptor the descriptor of the started test or container
 	 */
 	@Override
 	public void executionStarted(TestDescriptor testDescriptor) {
@@ -97,9 +93,6 @@ public class ExecutionRecorder implements EngineExecutionListener {
 	/**
 	 * Record an {@link ExecutionEvent} for a container or test that completed
 	 * with the provided {@link TestExecutionResult}.
-	 *
-	 * @param testDescriptor the descriptor of the finished test or container
-	 * @param testExecutionResult the (unaggregated) result of the execution
 	 */
 	@Override
 	public void executionFinished(TestDescriptor testDescriptor, TestExecutionResult testExecutionResult) {
@@ -108,9 +101,6 @@ public class ExecutionRecorder implements EngineExecutionListener {
 
 	/**
 	 * Record an {@link ExecutionEvent} for a published {@link ReportEntry}.
-	 *
-	 * @param testDescriptor the descriptor of the test or container to which the entry belongs
-	 * @param entry a {@code ReportEntry} instance to be published
 	 */
 	@Override
 	public void reportingEntryPublished(TestDescriptor testDescriptor, ReportEntry entry) {

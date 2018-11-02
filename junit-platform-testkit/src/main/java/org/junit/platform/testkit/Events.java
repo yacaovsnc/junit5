@@ -34,7 +34,6 @@ import org.assertj.core.api.ListAssert;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
-import org.junit.platform.testkit.ExecutionEvent.Type;
 
 /**
  * {@link Events} is a facade that provides a fluent API for working with
@@ -66,16 +65,31 @@ public final class Events {
 
 	// --- Accessors -----------------------------------------------------------
 
+	/**
+	 * Get the {@linkplain ExecutionEvent execution events} as a {@link List}.
+	 *
+	 * @return the list of execution events; never {@code null}
+	 * @see #stream()
+	 */
 	public List<ExecutionEvent> list() {
 		return this.events;
 	}
 
+	/**
+	 * Get the {@linkplain ExecutionEvent execution events} as a {@link Stream}.
+	 *
+	 * @return the stream of execution events; never {@code null}
+	 * @see #list()
+	 */
 	public Stream<ExecutionEvent> stream() {
 		return this.events.stream();
 	}
 
 	/**
 	 * Shortcut for {@code events.stream().map(mapper)}.
+	 *
+	 * @see #stream()
+	 * @see Stream#map(Function)
 	 */
 	public <R> Stream<R> map(Function<? super ExecutionEvent, ? extends R> mapper) {
 		Preconditions.notNull(mapper, "Mapping function must not be null");
@@ -84,69 +98,164 @@ public final class Events {
 
 	/**
 	 * Shortcut for {@code events.stream().filter(predicate)}.
+	 *
+	 * @see #stream()
+	 * @see Stream#filter(Predicate)
 	 */
 	public Stream<ExecutionEvent> filter(Predicate<? super ExecutionEvent> predicate) {
 		Preconditions.notNull(predicate, "Filter predicate must not be null");
 		return stream().filter(predicate);
 	}
 
+	/**
+	 * Get the {@link Executions} for the current set of
+	 * {@linkplain ExecutionEvent execution events}.
+	 *
+	 * @return an instance of {@code Executions} for the current set of events;
+	 * never {@code null}
+	 */
 	public Executions executions() {
 		return new Executions(this.events, this.category);
 	}
 
 	// --- Statistics ----------------------------------------------------------
 
+	/**
+	 * Get the number of {@linkplain ExecutionEvent execution events} contained
+	 * in this {@code Events} object.
+	 */
 	public long count() {
 		return this.events.size();
 	}
 
 	// --- Built-in Filters ----------------------------------------------------
 
+	/**
+	 * Get the skipped {@link Events} contained in this {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events skipped() {
-		return new Events(eventsByType(Type.SKIPPED), this.category + " Skipped");
+		return new Events(eventsByType(EventType.SKIPPED), this.category + " Skipped");
 	}
 
+	/**
+	 * Get the started {@link Events} contained in this {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events started() {
-		return new Events(eventsByType(Type.STARTED), this.category + " Started");
+		return new Events(eventsByType(EventType.STARTED), this.category + " Started");
 	}
 
+	/**
+	 * Get the finished {@link Events} contained in this {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events finished() {
-		return new Events(eventsByType(Type.FINISHED), this.category + " Finished");
+		return new Events(eventsByType(EventType.FINISHED), this.category + " Finished");
 	}
 
+	/**
+	 * Get the aborted {@link Events} contained in this {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events aborted() {
 		return new Events(finishedEventsByStatus(Status.ABORTED), this.category + " Aborted");
 	}
 
+	/**
+	 * Get the succeeded {@link Events} contained in this {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events succeeded() {
 		return new Events(finishedEventsByStatus(Status.SUCCESSFUL), this.category + " Successful");
 	}
 
+	/**
+	 * Get the failed {@link Events} contained in this {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events failed() {
 		return new Events(finishedEventsByStatus(Status.FAILED), this.category + " Failed");
 	}
 
+	/**
+	 * Get the reporting entry publication {@link Events} contained in this
+	 * {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events reportingEntryPublished() {
-		return new Events(eventsByType(Type.REPORTING_ENTRY_PUBLISHED), this.category + " Reporting Entry Published");
+		return new Events(eventsByType(EventType.REPORTING_ENTRY_PUBLISHED),
+			this.category + " Reporting Entry Published");
 	}
 
+	/**
+	 * Get the dynamic registration {@link Events} contained in this
+	 * {@code Events} object.
+	 *
+	 * @return the filtered {@code Events}; never {@code null}
+	 */
 	public Events dynamicallyRegistered() {
-		return new Events(eventsByType(Type.DYNAMIC_TEST_REGISTERED), this.category + " Dynamically Registered");
+		return new Events(eventsByType(EventType.DYNAMIC_TEST_REGISTERED), this.category + " Dynamically Registered");
 	}
 
 	// --- Assertions ----------------------------------------------------------
 
+	/**
+	 * Assert statistics for the {@linkplain ExecutionEvent execution events}
+	 * contained in this {@code Events} object.
+	 *
+	 * <h4>Example</h4>
+	 *
+	 * <p>{@code events.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));}
+	 *
+	 * @param statisticsConsumer a consumer of {@link EventStatistics}
+	 */
 	public void assertStatistics(Consumer<EventStatistics> statisticsConsumer) {
 		EventStatistics eventStatistics = new EventStatistics(this, this.category);
 		statisticsConsumer.accept(eventStatistics);
 		eventStatistics.assertAll();
 	}
 
+	/**
+	 * Assert that all {@linkplain ExecutionEvent execution events} contained in
+	 * this {@code Events} object exactly match the provided conditions.
+	 *
+	 * <p>Conditions can be imported statically from {@link ExecutionEventConditions}
+	 * and {@link TestExecutionResultConditions}.
+	 *
+	 * <h4>Example</h4>
+	 *
+	 * <pre class="code">
+	 * executionResults.tests().assertEventsMatchExactly(
+	 *     event(test("exampleTestMethod"), started()),
+	 *     event(test("exampleTestMethod"), finishedSuccessfully())
+	 * );
+	 * </pre>
+	 *
+	 * @param conditions the conditions to match against
+	 * @see ExecutionEventConditions
+	 * @see TestExecutionResultConditions
+	 */
 	@SafeVarargs
 	public final void assertEventsMatchExactly(Condition<? super ExecutionEvent>... conditions) {
 		assertExecutionEventsMatchExactly(this.events, conditions);
 	}
 
+	/**
+	 * Shortcut for {@code org.assertj.core.api.Assertions.assertThat(events.list())}.
+	 *
+	 * @return an instance of {@link ListAssert} for execution events; never
+	 * {@code null}
+	 * @see org.assertj.core.api.Assertions#assertThat(List)
+	 * @see org.assertj.core.api.ListAssert
+	 */
 	public ListAssert<ExecutionEvent> assertThatEvents() {
 		return org.assertj.core.api.Assertions.assertThat(list());
 	}
@@ -191,14 +300,14 @@ public final class Events {
 
 	// --- Internals -----------------------------------------------------------
 
-	private Stream<ExecutionEvent> eventsByType(Type type) {
-		Preconditions.notNull(type, "Type must not be null");
+	private Stream<ExecutionEvent> eventsByType(EventType type) {
+		Preconditions.notNull(type, "EventType must not be null");
 		return stream().filter(byType(type));
 	}
 
 	private Stream<ExecutionEvent> finishedEventsByStatus(Status status) {
 		Preconditions.notNull(status, "Status must not be null");
-		return eventsByType(Type.FINISHED)//
+		return eventsByType(EventType.FINISHED)//
 				.filter(byPayload(TestExecutionResult.class, where(TestExecutionResult::getStatus, isEqual(status))));
 	}
 

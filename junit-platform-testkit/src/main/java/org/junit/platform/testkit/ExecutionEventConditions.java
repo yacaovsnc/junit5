@@ -16,10 +16,10 @@ import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.engine.TestExecutionResult.Status.ABORTED;
 import static org.junit.platform.engine.TestExecutionResult.Status.FAILED;
 import static org.junit.platform.engine.TestExecutionResult.Status.SUCCESSFUL;
-import static org.junit.platform.testkit.ExecutionEvent.Type.DYNAMIC_TEST_REGISTERED;
-import static org.junit.platform.testkit.ExecutionEvent.Type.FINISHED;
-import static org.junit.platform.testkit.ExecutionEvent.Type.SKIPPED;
-import static org.junit.platform.testkit.ExecutionEvent.Type.STARTED;
+import static org.junit.platform.testkit.EventType.DYNAMIC_TEST_REGISTERED;
+import static org.junit.platform.testkit.EventType.FINISHED;
+import static org.junit.platform.testkit.EventType.SKIPPED;
+import static org.junit.platform.testkit.EventType.STARTED;
 import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
@@ -39,7 +39,7 @@ import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.EngineDescriptor;
 
 /**
- * Collection of AssertJ conditions for {@link ExecutionEvent}s.
+ * Collection of AssertJ conditions for {@link ExecutionEvent}.
  *
  * @since 1.4
  */
@@ -47,13 +47,16 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor;
 public class ExecutionEventConditions {
 
 	private ExecutionEventConditions() {
+		/* no-op */
 	}
 
 	@SafeVarargs
 	public static void assertExecutionEventsMatchExactly(List<ExecutionEvent> executionEvents,
 			Condition<? super ExecutionEvent>... conditions) {
-		SoftAssertions softly = new SoftAssertions();
+
 		Assertions.assertThat(executionEvents).hasSize(conditions.length);
+
+		SoftAssertions softly = new SoftAssertions();
 		for (int i = 0; i < conditions.length; i++) {
 			softly.assertThat(executionEvents).has(conditions[i], Index.atIndex(i));
 		}
@@ -116,6 +119,7 @@ public class ExecutionEventConditions {
 			String text = segment.getType() + ":" + segment.getValue();
 			return text.contains(uniqueIdSubstring);
 		};
+
 		return new Condition<>(
 			byTestDescriptor(
 				where(TestDescriptor::getUniqueId, uniqueId -> uniqueId.getSegments().stream().anyMatch(predicate))),
@@ -166,7 +170,7 @@ public class ExecutionEventConditions {
 		return Assertions.allOf(type(FINISHED), result(resultCondition));
 	}
 
-	public static Condition<ExecutionEvent> type(ExecutionEvent.Type expectedType) {
+	public static Condition<ExecutionEvent> type(EventType expectedType) {
 		return new Condition<>(byType(expectedType), "type is %s", expectedType);
 	}
 

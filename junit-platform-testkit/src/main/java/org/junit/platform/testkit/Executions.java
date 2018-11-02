@@ -62,16 +62,31 @@ public final class Executions {
 
 	// --- Accessors -----------------------------------------------------------
 
+	/**
+	 * Get the {@linkplain Execution executions} as a {@link List}.
+	 *
+	 * @return the list of executions; never {@code null}
+	 * @see #stream()
+	 */
 	public List<Execution> list() {
 		return this.executions;
 	}
 
+	/**
+	 * Get the {@linkplain Execution executions} as a {@link Stream}.
+	 *
+	 * @return the stream of executions; never {@code null}
+	 * @see #list()
+	 */
 	public Stream<Execution> stream() {
 		return this.executions.stream();
 	}
 
 	/**
 	 * Shortcut for {@code executions.stream().map(mapper)}.
+	 *
+	 * @see #stream()
+	 * @see Stream#map(Function)
 	 */
 	public <R> Stream<R> map(Function<? super Execution, ? extends R> mapper) {
 		Preconditions.notNull(mapper, "Mapping function must not be null");
@@ -80,6 +95,9 @@ public final class Executions {
 
 	/**
 	 * Shortcut for {@code executions.stream().filter(predicate)}.
+	 *
+	 * @see #stream()
+	 * @see Stream#filter(Predicate)
 	 */
 	public Stream<Execution> filter(Predicate<? super Execution> predicate) {
 		Preconditions.notNull(predicate, "Filter predicate must not be null");
@@ -88,38 +106,79 @@ public final class Executions {
 
 	// --- Statistics ----------------------------------------------------------
 
+	/**
+	 * Get the number of {@linkplain Execution executions} contained in this
+	 * {@code Executions} object.
+	 */
 	public long count() {
 		return this.executions.size();
 	}
 
 	// --- Built-in Filters ----------------------------------------------------
 
+	/**
+	 * Get the skipped {@link Executions} contained in this {@code Executions} object.
+	 *
+	 * @return the filtered {@code Executions}; never {@code null}
+	 */
 	public Executions skipped() {
 		return new Executions(executionsByTerminationInfo(TerminationInfo::skipped), this.category + " Skipped");
 	}
 
+	/**
+	 * Get the started {@link Executions} contained in this {@code Executions} object.
+	 *
+	 * @return the filtered {@code Executions}; never {@code null}
+	 */
 	public Executions started() {
 		return new Executions(executionsByTerminationInfo(TerminationInfo::notSkipped), this.category + " Started");
 	}
 
+	/**
+	 * Get the finished {@link Executions} contained in this {@code Executions} object.
+	 *
+	 * @return the filtered {@code Executions}; never {@code null}
+	 */
 	public Executions finished() {
 		return new Executions(finishedExecutions(), this.category + " Finished");
 	}
 
+	/**
+	 * Get the aborted {@link Executions} contained in this {@code Executions} object.
+	 *
+	 * @return the filtered {@code Executions}; never {@code null}
+	 */
 	public Executions aborted() {
 		return new Executions(finishedExecutionsByStatus(Status.ABORTED), this.category + " Aborted");
 	}
 
+	/**
+	 * Get the succeeded {@link Executions} contained in this {@code Executions} object.
+	 *
+	 * @return the filtered {@code Executions}; never {@code null}
+	 */
 	public Executions succeeded() {
 		return new Executions(finishedExecutionsByStatus(Status.SUCCESSFUL), this.category + " Successful");
 	}
 
+	/**
+	 * Get the failed {@link Executions} contained in this {@code Executions} object.
+	 *
+	 * @return the filtered {@code Executions}; never {@code null}
+	 */
 	public Executions failed() {
 		return new Executions(finishedExecutionsByStatus(Status.FAILED), this.category + " Failed");
 	}
 
 	// --- Assertions ----------------------------------------------------------
 
+	/**
+	 * Shortcut for {@code org.assertj.core.api.Assertions.assertThat(executions.list())}.
+	 *
+	 * @return an instance of {@link ListAssert} for executions; never {@code null}
+	 * @see org.assertj.core.api.Assertions#assertThat(List)
+	 * @see org.assertj.core.api.ListAssert
+	 */
 	public ListAssert<Execution> assertThatExecutions() {
 		return org.assertj.core.api.Assertions.assertThat(list());
 	}
@@ -195,7 +254,7 @@ public final class Executions {
 					Instant startInstant = executionStarts.get(executionEvent.getTestDescriptor());
 					Execution skippedEvent = Execution.skipped(executionEvent.getTestDescriptor(),
 						startInstant != null ? startInstant : executionEvent.getTimestamp(),
-						executionEvent.getTimestamp(), executionEvent.getPayloadAs(String.class));
+						executionEvent.getTimestamp(), executionEvent.getRequiredPayload(String.class));
 					executions.add(skippedEvent);
 					executionStarts.remove(executionEvent.getTestDescriptor());
 					break;
@@ -203,7 +262,7 @@ public final class Executions {
 				case FINISHED: {
 					Execution finishedEvent = Execution.finished(executionEvent.getTestDescriptor(),
 						executionStarts.get(executionEvent.getTestDescriptor()), executionEvent.getTimestamp(),
-						executionEvent.getPayloadAs(TestExecutionResult.class));
+						executionEvent.getRequiredPayload(TestExecutionResult.class));
 					executions.add(finishedEvent);
 					executionStarts.remove(executionEvent.getTestDescriptor());
 					break;
