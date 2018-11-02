@@ -11,11 +11,10 @@
 package org.junit.platform.testkit;
 
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
+import static org.junit.platform.testkit.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
 import org.junit.platform.testkit.Assertions.Executable;
@@ -26,64 +25,57 @@ import org.junit.platform.testkit.Assertions.Executable;
 @API(status = EXPERIMENTAL, since = "1.4")
 public class EventStats {
 
-	private final Events events;
-	private final String category;
-
 	private final List<Executable> executables = new ArrayList<>();
+	private final Events events;
 
 	EventStats(Events events, String category) {
 		this.events = events;
-		this.category = category;
 	}
 
 	public EventStats skipped(long expected) {
-		this.executables.add(() -> assertStatistic(expected, this.events.skipped()::stream, "skipped"));
+		this.executables.add(() -> assertEquals(expected, this.events.skipped().count(), "skipped"));
 		return this;
 	}
 
 	public EventStats started(long expected) {
-		this.executables.add(() -> assertStatistic(expected, events.started()::stream, "started"));
+		this.executables.add(() -> assertEquals(expected, this.events.started().count(), "started"));
 		return this;
 	}
 
 	public EventStats finished(long expected) {
-		this.executables.add(() -> assertStatistic(expected, events.finished()::stream, "finished"));
+		this.executables.add(() -> assertEquals(expected, this.events.finished().count(), "finished"));
 		return this;
 	}
 
 	public EventStats aborted(long expected) {
-		this.executables.add(() -> assertStatistic(expected, events.aborted()::stream, "aborted"));
+		this.executables.add(() -> assertEquals(expected, this.events.aborted().count(), "aborted"));
 		return this;
 	}
 
 	public EventStats succeeded(long expected) {
-		this.executables.add(() -> assertStatistic(expected, events.succeeded()::stream, "succeeded"));
+		this.executables.add(() -> assertEquals(expected, this.events.succeeded().count(), "succeeded"));
 		return this;
 	}
 
 	public EventStats failed(long expected) {
-		this.executables.add(() -> assertStatistic(expected, events.failed()::stream, "failed"));
+		this.executables.add(() -> assertEquals(expected, this.events.failed().count(), "failed"));
 		return this;
 	}
 
 	public EventStats reportingEntryPublished(long expected) {
 		this.executables.add(
-			() -> assertStatistic(expected, events.reportingEntryPublished()::stream, "reporting entry published"));
+			() -> assertEquals(expected, this.events.reportingEntryPublished().count(), "reporting entry published"));
 		return this;
 	}
 
 	public EventStats dynamicallyRegistered(long expected) {
 		this.executables.add(
-			() -> assertStatistic(expected, events.dynamicallyRegistered()::stream, "dynamically registered"));
+			() -> assertEquals(expected, this.events.dynamicallyRegistered().count(), "dynamically registered"));
 		return this;
 	}
 
 	void assertAll() {
-		Assertions.assertAll(this.category + " Event Statistics", this.executables.stream());
-	}
-
-	private static void assertStatistic(long expected, Supplier<Stream<?>> streamSupplier, String category) {
-		Assertions.assertEquals(expected, streamSupplier.get().count(), category);
+		Assertions.assertAll(this.events.getCategory() + " Event Statistics", this.executables.stream());
 	}
 
 }

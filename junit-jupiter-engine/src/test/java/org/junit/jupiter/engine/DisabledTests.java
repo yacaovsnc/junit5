@@ -72,6 +72,7 @@ class DisabledTests extends AbstractJupiterTestEngineTests {
 
 		// BUILT-IN APPROACH for asserting statistics -- with fluent API
 		//
+		// tests.assertStats(stats -> stats.skipped(11).started(11).finished(11).aborted(10).succeeded(11).failed(10));
 		tests.assertStats(stats -> stats.skipped(1).started(1).finished(1).aborted(0).succeeded(1).failed(0));
 
 		String method = DisabledTestMethodsTestCase.class.getDeclaredMethod("disabledTest").toString();

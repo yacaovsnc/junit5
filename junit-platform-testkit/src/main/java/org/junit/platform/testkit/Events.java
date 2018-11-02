@@ -62,6 +62,10 @@ public final class Events {
 		this.category = category;
 	}
 
+	String getCategory() {
+		return this.category;
+	}
+
 	// --- Accessors -----------------------------------------------------------
 
 	public List<ExecutionEvent> list() {
