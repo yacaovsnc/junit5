@@ -13,9 +13,9 @@ package org.junit.jupiter.engine;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.started;
-import static org.junit.platform.testkit.Statistics.succeeded;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.started;
+import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import java.util.Optional;
 

@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.container;
 import static org.junit.platform.testkit.ExecutionEventConditions.engine;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
@@ -22,8 +24,6 @@ import static org.junit.platform.testkit.ExecutionEventConditions.finishedSucces
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFailure;
 import static org.junit.platform.testkit.ExecutionEventConditions.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.started;
 import static org.junit.platform.testkit.TestExecutionResultConditions.isA;
 import static org.junit.platform.testkit.TestExecutionResultConditions.message;
 import static org.junit.platform.testkit.TestExecutionResultConditions.suppressed;

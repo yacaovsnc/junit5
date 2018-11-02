@@ -140,8 +140,9 @@ public final class Events {
 
 	@SafeVarargs
 	@SuppressWarnings({ "varargs", "unchecked" }) // required for JDK 8
-	public final void assertStatistics(Statistics... statistics) {
-		assertAll(this.category + " Statistics", Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
+	public final void assertStatistics(EventStatistics... statistics) {
+		assertAll(this.category + " Event Statistics",
+			Arrays.stream(statistics).map(s -> () -> s.assertStatistic(this)));
 	}
 
 	@SafeVarargs

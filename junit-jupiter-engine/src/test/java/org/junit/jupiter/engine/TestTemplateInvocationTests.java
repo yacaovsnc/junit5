@@ -20,6 +20,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
+import static org.junit.platform.testkit.EventStatistics.dynamicallyRegistered;
 import static org.junit.platform.testkit.ExecutionEventConditions.container;
 import static org.junit.platform.testkit.ExecutionEventConditions.displayName;
 import static org.junit.platform.testkit.ExecutionEventConditions.dynamicTestRegistered;
@@ -30,7 +31,6 @@ import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFa
 import static org.junit.platform.testkit.ExecutionEventConditions.skippedWithReason;
 import static org.junit.platform.testkit.ExecutionEventConditions.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
-import static org.junit.platform.testkit.Statistics.dynamicallyRegistered;
 import static org.junit.platform.testkit.TestExecutionResultConditions.message;
 
 import java.lang.reflect.Field;

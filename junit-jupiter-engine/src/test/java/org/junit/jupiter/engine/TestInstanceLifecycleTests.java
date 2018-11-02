@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
-import static org.junit.platform.testkit.Statistics.finished;
-import static org.junit.platform.testkit.Statistics.started;
+import static org.junit.platform.testkit.EventStatistics.finished;
+import static org.junit.platform.testkit.EventStatistics.started;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

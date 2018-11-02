@@ -14,14 +14,14 @@ import static org.assertj.core.api.Assertions.allOf;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
+import static org.junit.platform.testkit.EventStatistics.aborted;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.started;
+import static org.junit.platform.testkit.EventStatistics.succeeded;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedSuccessfully;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFailure;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
-import static org.junit.platform.testkit.Statistics.aborted;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.started;
-import static org.junit.platform.testkit.Statistics.succeeded;
 import static org.junit.platform.testkit.TestExecutionResultConditions.isA;
 import static org.junit.platform.testkit.TestExecutionResultConditions.message;
 

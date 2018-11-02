@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.finished;
-import static org.junit.platform.testkit.Statistics.started;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.finished;
+import static org.junit.platform.testkit.EventStatistics.started;
 
 import java.util.ArrayList;
 import java.util.Arrays;

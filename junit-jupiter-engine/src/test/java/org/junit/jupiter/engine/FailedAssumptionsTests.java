@@ -10,8 +10,8 @@
 
 package org.junit.jupiter.engine;
 
-import static org.junit.platform.testkit.Statistics.aborted;
-import static org.junit.platform.testkit.Statistics.started;
+import static org.junit.platform.testkit.EventStatistics.aborted;
+import static org.junit.platform.testkit.EventStatistics.started;
 
 import org.junit.Assume;
 import org.junit.jupiter.api.Assumptions;

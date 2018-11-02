@@ -19,40 +19,40 @@ import org.apiguardian.api.API;
  */
 @API(status = EXPERIMENTAL, since = "1.4")
 @FunctionalInterface
-public interface Statistics {
+public interface EventStatistics {
 
 	void assertStatistic(Events events);
 
-	public static Statistics skipped(long expected) {
+	public static EventStatistics skipped(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.skipped()::stream, "skipped");
 	}
 
-	public static Statistics started(long expected) {
+	public static EventStatistics started(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.started()::stream, "started");
 	}
 
-	public static Statistics finished(long expected) {
+	public static EventStatistics finished(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.finished()::stream, "finished");
 	}
 
-	public static Statistics aborted(long expected) {
+	public static EventStatistics aborted(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.aborted()::stream, "aborted");
 	}
 
-	public static Statistics succeeded(long expected) {
+	public static EventStatistics succeeded(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.succeeded()::stream, "succeeded");
 	}
 
-	public static Statistics failed(long expected) {
+	public static EventStatistics failed(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.failed()::stream, "failed");
 	}
 
-	public static Statistics reportingEntryPublished(long expected) {
+	public static EventStatistics reportingEntryPublished(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.reportingEntryPublished()::stream,
 			"reporting entry published");
 	}
 
-	public static Statistics dynamicallyRegistered(long expected) {
+	public static EventStatistics dynamicallyRegistered(long expected) {
 		return events -> StatisticsUtils.assertStatistic(expected, events.dynamicallyRegistered()::stream,
 			"dynamically registered");
 	}

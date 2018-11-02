@@ -13,12 +13,12 @@ package org.junit.jupiter.engine;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.platform.testkit.Statistics.aborted;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.finished;
-import static org.junit.platform.testkit.Statistics.skipped;
-import static org.junit.platform.testkit.Statistics.started;
-import static org.junit.platform.testkit.Statistics.succeeded;
+import static org.junit.platform.testkit.EventStatistics.aborted;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.finished;
+import static org.junit.platform.testkit.EventStatistics.skipped;
+import static org.junit.platform.testkit.EventStatistics.started;
+import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

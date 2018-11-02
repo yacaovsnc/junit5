@@ -12,10 +12,10 @@ package org.junit.jupiter.engine;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.reportingEntryPublished;
-import static org.junit.platform.testkit.Statistics.started;
-import static org.junit.platform.testkit.Statistics.succeeded;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.reportingEntryPublished;
+import static org.junit.platform.testkit.EventStatistics.started;
+import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import java.util.HashMap;
 import java.util.Map;

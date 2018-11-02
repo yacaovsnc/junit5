@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.engine.Constants.DEACTIVATE_CONDITIONS_PATTERN_PROPERTY_NAME;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.skipped;
-import static org.junit.platform.testkit.Statistics.started;
-import static org.junit.platform.testkit.Statistics.succeeded;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.skipped;
+import static org.junit.platform.testkit.EventStatistics.started;
+import static org.junit.platform.testkit.EventStatistics.succeeded;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

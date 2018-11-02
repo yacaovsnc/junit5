@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.platform.testkit.EventStatistics.failed;
+import static org.junit.platform.testkit.EventStatistics.skipped;
+import static org.junit.platform.testkit.EventStatistics.started;
 import static org.junit.platform.testkit.ExecutionEventConditions.event;
 import static org.junit.platform.testkit.ExecutionEventConditions.finishedWithFailure;
 import static org.junit.platform.testkit.ExecutionEventConditions.test;
-import static org.junit.platform.testkit.Statistics.failed;
-import static org.junit.platform.testkit.Statistics.skipped;
-import static org.junit.platform.testkit.Statistics.started;
 import static org.junit.platform.testkit.TestExecutionResultConditions.isA;
 import static org.junit.platform.testkit.TestExecutionResultConditions.message;
 
