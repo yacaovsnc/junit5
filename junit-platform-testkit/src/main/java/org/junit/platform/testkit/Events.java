@@ -99,11 +99,6 @@ public final class Events {
 
 	// --- Built-in Filters ----------------------------------------------------
 
-	// TODO Consider introducing category-aware Events specializations (e.g.,
-	// SkippedEvents, FinishedEvents, etc.) in order to prevent broken use cases
-	// such as events.skipped().aborted() -- for example, SkippedEvents would not
-	// provide aborted() as part of its API since that would not make sense.
-
 	public Events skipped() {
 		return new Events(eventsByType(Type.SKIPPED), this.category + " Skipped");
 	}
