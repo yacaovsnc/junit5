@@ -158,28 +158,38 @@ public final class Events {
 
 	/**
 	 * Print all events to {@link System#out}.
+	 *
+	 * @return this {@code Events} object for method chaining; never {@code null}
 	 */
-	public void debug() {
+	public Events debug() {
 		debug(System.out);
+		return this;
 	}
 
 	/**
 	 * Print all events to the supplied {@link OutputStream}.
+	 *
+	 * @return this {@code Events} object for method chaining; never {@code null}
 	 */
-	public void debug(OutputStream out) {
+	public Events debug(OutputStream out) {
 		debug(new PrintWriter(out, true));
+		return this;
 	}
 
 	/**
 	 * Print all events to the supplied {@link Writer}.
+	 *
+	 * @return this {@code Events} object for method chaining; never {@code null}
 	 */
-	public void debug(Writer writer) {
+	public Events debug(Writer writer) {
 		debug(new PrintWriter(writer, true));
+		return this;
 	}
 
-	private void debug(PrintWriter printWriter) {
+	private Events debug(PrintWriter printWriter) {
 		printWriter.println(this.category + " Events:");
 		this.events.forEach(event -> printWriter.printf("\t%s%n", event));
+		return this;
 	}
 
 	// --- Internals -----------------------------------------------------------

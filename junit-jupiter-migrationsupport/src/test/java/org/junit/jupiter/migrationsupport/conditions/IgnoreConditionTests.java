@@ -76,21 +76,21 @@ class IgnoreConditionTests {
 		containers.debug();
 
 		// tests.debug(System.err);
-		tests.debug();
-		tests.skipped().debug();
-		tests.started().debug();
-		tests.succeeded().debug();
+		// tests.debug();
+		// tests.skipped().debug();
+		// tests.started().debug();
+		// tests.succeeded().debug();
 
-		executionResults.all().executions().debug();
-		containers.executions().debug();
-		tests.executions().debug();
+		// executionResults.all().executions().debug();
+		// containers.executions().debug();
+		// tests.executions().debug();
 
 		executionResults.all().executions().assertThatExecutions().hasSize(5);
 		containers.executions().assertThatExecutions().hasSize(2);
 		tests.executions().assertThatExecutions().hasSize(3);
 
 		// @formatter:off
-		tests.assertEventsMatchExactly(
+		tests.debug().assertEventsMatchExactly(
 			event(test("ignoredWithCustomMessage"), skippedWithReason("Ignored Method")),
 			event(test("notIgnored"), started()),
 			event(test("notIgnored"), finishedSuccessfully()),

@@ -128,28 +128,38 @@ public final class Executions {
 
 	/**
 	 * Print all executions to {@link System#out}.
+	 *
+	 * @return this {@code Executions} object for method chaining; never {@code null}
 	 */
-	public void debug() {
+	public Executions debug() {
 		debug(System.out);
+		return this;
 	}
 
 	/**
 	 * Print all executions to the supplied {@link OutputStream}.
+	 *
+	 * @return this {@code Executions} object for method chaining; never {@code null}
 	 */
-	public void debug(OutputStream out) {
+	public Executions debug(OutputStream out) {
 		debug(new PrintWriter(out, true));
+		return this;
 	}
 
 	/**
 	 * Print all executions to the supplied {@link Writer}.
+	 *
+	 * @return this {@code Executions} object for method chaining; never {@code null}
 	 */
-	public void debug(Writer writer) {
+	public Executions debug(Writer writer) {
 		debug(new PrintWriter(writer, true));
+		return this;
 	}
 
-	private void debug(PrintWriter printWriter) {
+	private Executions debug(PrintWriter printWriter) {
 		printWriter.println(this.category + " Executions:");
 		this.executions.forEach(event -> printWriter.printf("\t%s%n", event));
+		return this;
 	}
 
 	// --- Internals -----------------------------------------------------------
