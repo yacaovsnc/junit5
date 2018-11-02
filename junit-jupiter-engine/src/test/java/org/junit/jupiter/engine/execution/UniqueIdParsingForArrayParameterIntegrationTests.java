@@ -43,7 +43,7 @@ class UniqueIdParsingForArrayParameterIntegrationTests extends AbstractJupiterTe
 		assertEquals(0, executionResults.tests().failed().count(), "# tests failed");
 
 		// @formatter:off
-		UniqueId uniqueId = executionResults.events()
+		UniqueId uniqueId = executionResults.all()
 				.map(ExecutionEvent::getTestDescriptor)
 				.distinct()
 				.skip(2)

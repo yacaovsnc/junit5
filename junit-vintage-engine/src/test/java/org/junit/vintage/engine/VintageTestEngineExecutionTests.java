@@ -550,7 +550,7 @@ class VintageTestEngineExecutionTests {
 	}
 
 	private static Events execute(Class<?> testClass) {
-		return ExecutionRecorder.execute(new VintageTestEngine(), request(testClass)).events();
+		return ExecutionRecorder.execute(new VintageTestEngine(), request(testClass)).all();
 	}
 
 	private static void execute(Class<?> testClass, EngineExecutionListener listener) {

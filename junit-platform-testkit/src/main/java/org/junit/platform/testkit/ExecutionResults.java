@@ -27,7 +27,7 @@ import org.junit.platform.engine.TestDescriptor;
  * {@link org.junit.platform.engine.TestEngine TestEngine}.
  *
  * @since 1.4
- * @see #events()
+ * @see #all()
  * @see #containers()
  * @see #tests()
  * @see ExecutionRecorder
@@ -60,28 +60,25 @@ public class ExecutionResults {
 	/**
 	 * Get all recorded events.
 	 */
-	// TODO Consider renaming to global() or all().
-	public Events events() {
+	public Events all() {
 		return this.allEvents;
 	}
 
 	/**
-	 * Get all recorded events for containers.
+	 * Get recorded events for containers.
 	 *
 	 * <p>In this context, the word "container" applies to {@link TestDescriptor
-	 * TestDescriptors} that return {@code true} from
-	 * {@link TestDescriptor#isContainer()}.
+	 * TestDescriptors} that return {@code true} from {@link TestDescriptor#isContainer()}.
 	 */
 	public Events containers() {
 		return this.containerEvents;
 	}
 
 	/**
-	 * Get all recorded events for tests.
+	 * Get recorded events for tests.
 	 *
 	 * <p>In this context, the word "test" applies to {@link TestDescriptor
-	 * TestDescriptors} that return {@code true} from
-	 * {@link TestDescriptor#isTest()}.
+	 * TestDescriptors} that return {@code true} from {@link TestDescriptor#isTest()}.
 	 */
 	public Events tests() {
 		return this.testEvents;

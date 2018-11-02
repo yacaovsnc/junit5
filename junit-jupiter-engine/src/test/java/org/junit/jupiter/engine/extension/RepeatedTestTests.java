@@ -155,7 +155,7 @@ class RepeatedTestTests {
 
 	private Events executeTest(String methodName) {
 		return ExecutionRecorder.execute(new JupiterTestEngine(),
-			request().selectors(selectMethod(TestCase.class, methodName)).build()).events();
+			request().selectors(selectMethod(TestCase.class, methodName)).build()).all();
 	}
 
 	static class TestCase {

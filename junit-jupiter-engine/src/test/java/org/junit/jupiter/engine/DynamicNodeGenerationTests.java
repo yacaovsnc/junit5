@@ -82,7 +82,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 	void dynamicTestsAreExecutedFromStream() {
 		ExecutionResults executionResults = executeTests(selectMethod(MyDynamicTestCase.class, "dynamicStream"));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("dynamicStream"), started()), //
@@ -150,7 +150,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectUniqueId(uniqueId));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("dynamicStream"), started()), //
@@ -167,7 +167,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTests(
 			selectMethod(MyDynamicTestCase.class, "dynamicContainerWithIterable"));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("dynamicContainerWithIterable"), started()), //
@@ -206,7 +206,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectUniqueId(uniqueId));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("twoNestedContainersWithTwoTestsEach"), started()), //
@@ -232,7 +232,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		ExecutionResults executionResults = executeTests(selectUniqueId(uniqueId));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("twoNestedContainersWithTwoTestsEach"), started()), //
@@ -258,7 +258,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTests(
 			selectMethod(MyDynamicTestCase.class, "nestedDynamicContainers"));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("nestedDynamicContainers"), started()), //
@@ -294,7 +294,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 	@Test
 	void legacyReportingNames() {
 		Events dynamicRegistrations = executeTests(selectMethod(MyDynamicTestCase.class, "nestedDynamicContainers"))//
-				.events().dynamicallyRegistered();
+				.all().dynamicallyRegistered();
 
 		// @formatter:off
 		Stream<String> legacyReportingNames = dynamicRegistrations
@@ -313,7 +313,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 
 		assertTrue(MyDynamicTestCase.exceptionThrowingStreamClosed.get(), "stream should be closed");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("dynamicContainerWithExceptionThrowingStream"), started()), //
@@ -348,7 +348,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 		ExecutionResults executionResults = executeTests(
 			selectMethod(MyDynamicTestCase.class, "dynamicContainerWithNullChildren"));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("dynamicContainerWithNullChildren"), started()), //
@@ -365,7 +365,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 	void testFactoryMethodsMayReturnSingleDynamicContainer() {
 		ExecutionResults executionResults = executeTests(selectMethod(MyDynamicTestCase.class, "singleContainer"));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("singleContainer"), started()), //
@@ -387,7 +387,7 @@ class DynamicNodeGenerationTests extends AbstractJupiterTestEngineTests {
 	void testFactoryMethodsMayReturnSingleDynamicTest() {
 		ExecutionResults executionResults = executeTests(selectMethod(MyDynamicTestCase.class, "singleTest"));
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(MyDynamicTestCase.class), started()), //
 			event(container("singleTest"), started()), //

@@ -71,7 +71,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(0, executionResults.tests().started().count(), "# tests started");
 		assertEquals(0, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass),
@@ -90,7 +90,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(0, executionResults.tests().started().count(), "# tests started");
 		assertEquals(0, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass),
@@ -110,7 +110,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(1, executionResults.tests().started().count(), "# tests started");
 		assertEquals(1, executionResults.tests().succeeded().count(), "# tests succeeded");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(outerClass), started()), //
 			event(test("outerTest()"), started()), //
@@ -133,7 +133,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(1, executionResults.tests().started().count(), "# tests started");
 		assertEquals(1, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(test("testShouldNotBeCalled"), started()), //
@@ -154,7 +154,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(0, executionResults.tests().started().count(), "# tests started");
 		assertEquals(0, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass),
@@ -173,7 +173,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(1, executionResults.tests().started().count(), "# tests started");
 		assertEquals(1, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(test("testShouldNotBeCalled"), started()), //
@@ -194,7 +194,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(0, executionResults.tests().started().count(), "# tests started");
 		assertEquals(0, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass),
@@ -213,7 +213,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(1, executionResults.tests().started().count(), "# tests started");
 		assertEquals(1, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(test("testShouldNotBeCalled"), started()), //
@@ -233,7 +233,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(0, executionResults.tests().started().count(), "# tests started");
 		assertEquals(0, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass), //
@@ -251,7 +251,7 @@ class TestInstanceFactoryTests extends AbstractJupiterTestEngineTests {
 		assertEquals(0, executionResults.tests().started().count(), "# tests started");
 		assertEquals(0, executionResults.tests().failed().count(), "# tests aborted");
 
-		executionResults.events().assertEventsMatchExactly( //
+		executionResults.all().assertEventsMatchExactly( //
 			event(engine(), started()), //
 			event(container(testClass), started()), //
 			event(container(testClass), //

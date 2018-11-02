@@ -260,7 +260,7 @@ class ParameterizedTestIntegrationTests {
 
 	private List<ExecutionEvent> execute(DiscoverySelector... selectors) {
 		return ExecutionRecorder.execute(new JupiterTestEngine(),
-			request().selectors(selectors).build()).events().list();
+			request().selectors(selectors).build()).all().list();
 	}
 
 	static class TestCase {
