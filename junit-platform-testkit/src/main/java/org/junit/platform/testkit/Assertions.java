@@ -10,7 +10,6 @@
 
 package org.junit.platform.testkit;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,17 +21,17 @@ import org.junit.platform.commons.util.StringUtils;
 import org.opentest4j.AssertionFailedError;
 import org.opentest4j.MultipleFailuresError;
 
+/**
+ * {@code Assertions} is a collection of selected assertion utility methods
+ * from JUnit Jupiter for use within the JUnit Platform Test Kit.
+ *
+ * @since 1.4
+ */
 class Assertions {
 
 	@FunctionalInterface
 	interface Executable {
 		void execute() throws Throwable;
-	}
-
-	static void assertAll(String heading, Executable... executables) {
-		Preconditions.notEmpty(executables, "executables array must not be null or empty");
-		Preconditions.containsNoNullElements(executables, "individual executables must not be null");
-		assertAll(heading, Arrays.stream(executables));
 	}
 
 	static void assertAll(String heading, Stream<Executable> executables) {
@@ -54,7 +53,9 @@ class Assertions {
 				.collect(Collectors.toList());
 
 		if (!failures.isEmpty()) {
-			throw new MultipleFailuresError(heading, failures);
+			MultipleFailuresError multipleFailuresError = new MultipleFailuresError(heading, failures);
+			failures.forEach(multipleFailuresError::addSuppressed);
+			throw multipleFailuresError;
 		}
 	}
 
