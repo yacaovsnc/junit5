@@ -120,8 +120,6 @@ public final class Executions {
 
 	// --- Assertions ----------------------------------------------------------
 
-	// TODO Decide if we want to introduce built-in assertions for Executions analogous to those for Events.
-
 	public ListAssert<Execution> assertThatExecutions() {
 		return org.assertj.core.api.Assertions.assertThat(list());
 	}
