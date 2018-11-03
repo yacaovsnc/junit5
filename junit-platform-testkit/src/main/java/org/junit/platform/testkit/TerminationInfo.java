@@ -29,28 +29,29 @@ import org.junit.platform.engine.TestExecutionResult;
 public class TerminationInfo {
 
 	public static TerminationInfo skipped(String skipReason) {
-		return new TerminationInfo(skipReason, null);
+		return new TerminationInfo(true, skipReason, null);
 	}
 
 	public static TerminationInfo executed(TestExecutionResult executionResult) {
-		return new TerminationInfo(null, executionResult);
+		return new TerminationInfo(false, null, executionResult);
 	}
 
+	private final boolean skipped;
 	private final String skipReason;
 	private final TestExecutionResult testExecutionResult;
 
-	private TerminationInfo(String skipReason, TestExecutionResult testExecutionResult) {
-		boolean skipped = (skipReason != null);
+	private TerminationInfo(boolean skipped, String skipReason, TestExecutionResult testExecutionResult) {
 		boolean executed = (testExecutionResult != null);
 		Preconditions.condition((skipped ^ executed),
-			"Either a skip reason or TestExecutionResult must be provided but not both");
+			"TerminationInfo must represent either a skipped execution or a TestExecutionResult but not both");
 
+		this.skipped = skipped;
 		this.skipReason = skipReason;
 		this.testExecutionResult = testExecutionResult;
 	}
 
 	public boolean skipped() {
-		return (this.skipReason != null);
+		return this.skipped;
 	}
 
 	public boolean notSkipped() {
@@ -84,7 +85,7 @@ public class TerminationInfo {
 			builder.append("skipped", skipped()).append("reason", this.skipReason);
 		}
 		else {
-			builder.append("executed", this.executed()).append("result", this.testExecutionResult);
+			builder.append("executed", executed()).append("result", this.testExecutionResult);
 		}
 		return builder.toString();
 	}
