@@ -16,7 +16,6 @@ import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
-import static org.junit.platform.testkit.ExecutionEventConditions.assertExecutionEventsMatchExactly;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -29,8 +28,11 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apiguardian.api.API;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.data.Index;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
@@ -309,6 +311,19 @@ public final class Events {
 		Preconditions.notNull(status, "Status must not be null");
 		return eventsByType(EventType.FINISHED)//
 				.filter(byPayload(TestExecutionResult.class, where(TestExecutionResult::getStatus, isEqual(status))));
+	}
+
+	@SafeVarargs
+	private static void assertExecutionEventsMatchExactly(List<ExecutionEvent> executionEvents,
+			Condition<? super ExecutionEvent>... conditions) {
+
+		Assertions.assertThat(executionEvents).hasSize(conditions.length);
+
+		SoftAssertions softly = new SoftAssertions();
+		for (int i = 0; i < conditions.length; i++) {
+			softly.assertThat(executionEvents).has(conditions[i], Index.atIndex(i));
+		}
+		softly.assertAll();
 	}
 
 }

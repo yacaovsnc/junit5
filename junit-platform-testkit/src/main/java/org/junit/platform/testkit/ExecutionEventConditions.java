@@ -24,14 +24,11 @@ import static org.junit.platform.testkit.ExecutionEvent.byPayload;
 import static org.junit.platform.testkit.ExecutionEvent.byTestDescriptor;
 import static org.junit.platform.testkit.ExecutionEvent.byType;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 import org.apiguardian.api.API;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Condition;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.data.Index;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
@@ -48,19 +45,6 @@ public class ExecutionEventConditions {
 
 	private ExecutionEventConditions() {
 		/* no-op */
-	}
-
-	@SafeVarargs
-	public static void assertExecutionEventsMatchExactly(List<ExecutionEvent> executionEvents,
-			Condition<? super ExecutionEvent>... conditions) {
-
-		Assertions.assertThat(executionEvents).hasSize(conditions.length);
-
-		SoftAssertions softly = new SoftAssertions();
-		for (int i = 0; i < conditions.length; i++) {
-			softly.assertThat(executionEvents).has(conditions[i], Index.atIndex(i));
-		}
-		softly.assertAll();
 	}
 
 	@SafeVarargs
