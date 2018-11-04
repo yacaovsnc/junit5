@@ -16,18 +16,17 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
-import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
 import static org.junit.platform.testkit.engine.EventConditions.abortedWithReason;
 import static org.junit.platform.testkit.engine.EventConditions.container;
 import static org.junit.platform.testkit.engine.EventConditions.displayName;
 import static org.junit.platform.testkit.engine.EventConditions.event;
 import static org.junit.platform.testkit.engine.EventConditions.finishedWithFailure;
 import static org.junit.platform.testkit.engine.EventConditions.test;
-import static org.junit.platform.testkit.engine.EventType.DYNAMIC_TEST_REGISTERED;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.isA;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.message;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +42,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.ArgumentConverter;
 import org.junit.jupiter.params.converter.ConvertWith;
@@ -55,6 +55,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.testkit.engine.EngineExecutionResults;
 import org.junit.platform.testkit.engine.EngineTestKit;
 import org.junit.platform.testkit.engine.Event;
 import org.opentest4j.TestAbortedException;
@@ -66,41 +67,57 @@ class ParameterizedTestIntegrationTests {
 
 	@Test
 	void executesWithSingleArgumentsProviderWithMultipleInvocations() {
-		List<Event> events = execute(
+		var results = execute(
 			selectMethod(TestCase.class, "testWithTwoSingleStringArgumentsProvider", String.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test(), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 	}
 
 	@Test
 	void executesWithCsvSource() {
-		List<Event> events = execute(selectMethod(TestCase.class, "testWithCsvSource", String.class.getName()));
-		assertThat(events) //
+		var results = execute(selectMethod(TestCase.class, "testWithCsvSource", String.class.getName()));
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test(), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 	}
 
 	@Test
 	void executesWithEmptyMethodSource() {
-		List<Event> events = execute(selectMethod(TestCase.class, "testWithEmptyMethodSource", String.class.getName()));
-		assertThat(events) //
-				.haveExactly(1, event(test(), finishedWithFailure(message("empty method source")))); //
+		var results = execute(selectMethod(TestCase.class, "testWithEmptyMethodSource", String.class.getName()));
+		results.all().assertThatEvents() //
+				.haveExactly(1, event(test(), finishedWithFailure(message("empty method source"))));
 	}
 
 	@Test
 	void executesWithMethodSourceReturning2dObjectArray() {
-		List<Event> events = execute(selectMethod(TestCase.class, "testWithMethodSourceReturning2dObjectArray",
+		var results = execute(selectMethod(TestCase.class, "testWithMethodSourceReturning2dObjectArray",
 			String.class.getName() + ", " + int.class.getName()));
-		assertThat(events) //
-				.haveExactly(1, event(test(), finishedWithFailure(message("foo:42")))); //
+		results.all().assertThatEvents() //
+				.haveExactly(1, event(test(), finishedWithFailure(message("foo:42"))));
+	}
+
+	/**
+	 * @since 5.4
+	 */
+	@Test
+	void executesWithMethodSourceReturning2dIntArrayStream() {
+		var methodName = "testWithMethodSourceReturningStreamOf2dIntArray";
+		String args1 = "[[1, 2], [3, 4]]";
+		String args2 = "[[5, 6], [7, 8]]";
+
+		var results = execute(selectMethod(TestCase.class, methodName, int[][].class.getName()));
+
+		results.tests().failed().assertThatEvents() //
+				.haveExactly(1, event(test(), displayName(args1), finishedWithFailure(message(args1)))) //
+				.haveExactly(1, event(test(), displayName(args2), finishedWithFailure(message(args2))));
 	}
 
 	@Test
 	void executesWithCustomName() {
-		List<Event> events = execute(
+		var results = execute(
 			selectMethod(TestCase.class, "testWithCustomName", String.class.getName() + "," + Integer.TYPE.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("foo and 23"), finishedWithFailure(message("foo, 23")))) //
 				.haveExactly(1, event(test(), displayName("bar and 42"), finishedWithFailure(message("bar, 42"))));
 	}
@@ -110,9 +127,9 @@ class ParameterizedTestIntegrationTests {
 	 */
 	@Test
 	void executesWithPrimitiveWideningConversion() {
-		List<Event> events = execute(
+		var results = execute(
 			selectMethod(TestCase.class, "testWithPrimitiveWideningConversion", double.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] 1"), finishedWithFailure(message("num: 1.0")))) //
 				.haveExactly(1, event(test(), displayName("[2] 2"), finishedWithFailure(message("num: 2.0"))));
 	}
@@ -122,21 +139,19 @@ class ParameterizedTestIntegrationTests {
 	 */
 	@Test
 	void executesWithImplicitGenericConverter() {
-		List<Event> events = execute(
-			selectMethod(TestCase.class, "testWithImplicitGenericConverter", Book.class.getName()));
-		assertThat(events) //
+		var results = execute(selectMethod(TestCase.class, "testWithImplicitGenericConverter", Book.class.getName()));
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] book 1"), finishedWithFailure(message("book 1")))) //
 				.haveExactly(1, event(test(), displayName("[2] book 2"), finishedWithFailure(message("book 2"))));
 	}
 
 	@Test
 	void legacyReportingNames() {
-		List<Event> events = execute(
+		var results = execute(
 			selectMethod(TestCase.class, "testWithCustomName", String.class.getName() + "," + Integer.TYPE.getName()));
 
 		// @formatter:off
-		Stream<String> legacyReportingNames = events.stream()
-				.filter(event -> event.getType() == DYNAMIC_TEST_REGISTERED)
+		Stream<String> legacyReportingNames = results.tests().dynamicallyRegistered()
 				.map(Event::getTestDescriptor)
 				.map(TestDescriptor::getLegacyReportingName);
 		// @formatter:off
@@ -146,45 +161,45 @@ class ParameterizedTestIntegrationTests {
 
 	@Test
 	void executesWithExplicitConverter() {
-		List<Event> events = execute(
+		var results = execute(
 			selectMethod(TestCase.class, "testWithExplicitConverter", Integer.TYPE.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] O"), finishedWithFailure(message("length: 1")))) //
 				.haveExactly(1, event(test(), displayName("[2] XXX"), finishedWithFailure(message("length: 3"))));
 	}
 
 	@Test
 	void executesWithArgumentsSourceProvidingUnusedArguments() {
-		List<Event> events = execute(selectMethod(UnusedParametersTestCase.class,
+		var results = execute(selectMethod(UnusedParametersTestCase.class,
 			"testWithTwoUnusedStringArgumentsProvider", String.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test(), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 	}
 
 	@Test
 	void executesWithCsvSourceContainingUnusedArguments() {
-		List<Event> events = execute(selectMethod(UnusedParametersTestCase.class,
+		var results = execute(selectMethod(UnusedParametersTestCase.class,
 			"testWithCsvSourceContainingUnusedArguments", String.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test(), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 	}
 
 	@Test
 	void executesWithCsvFileSourceContainingUnusedArguments() {
-		List<Event> events = execute(selectMethod(UnusedParametersTestCase.class,
+		var results = execute(selectMethod(UnusedParametersTestCase.class,
 			"testWithCsvFileSourceContainingUnusedArguments", String.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test(), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 	}
 
 	@Test
 	void executesWithMethodSourceProvidingUnusedArguments() {
-		List<Event> events = execute(selectMethod(UnusedParametersTestCase.class,
+		var results = execute(selectMethod(UnusedParametersTestCase.class,
 			"testWithMethodSourceProvidingUnusedArguments", String.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test(), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 	}
@@ -195,8 +210,8 @@ class ParameterizedTestIntegrationTests {
 		LifecycleTestCase.lifecycleEvents.clear();
 		LifecycleTestCase.testMethods.clear();
 
-		List<Event> events = execute(selectClass(LifecycleTestCase.class));
-		assertThat(events) //
+		var results = execute(selectClass(LifecycleTestCase.class));
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test("test1"), displayName("[1] foo"), finishedWithFailure(message("foo")))) //
 				.haveExactly(1, event(test("test1"), displayName("[2] bar"), finishedWithFailure(message("bar"))));
 
@@ -204,7 +219,7 @@ class ParameterizedTestIntegrationTests {
 
 		// @formatter:off
 		assertThat(LifecycleTestCase.lifecycleEvents).containsExactly(
-			"beforeAll:ParameterizedTestIntegrationTests$LifecycleTestCase", //
+			"beforeAll:ParameterizedTestIntegrationTests$LifecycleTestCase",
 				"providerMethod",
 					"constructor:ParameterizedTestIntegrationTests$LifecycleTestCase",
 					"beforeEach:[1] foo",
@@ -229,33 +244,32 @@ class ParameterizedTestIntegrationTests {
 
 	@Test
 	void failsContainerOnEmptyName() {
-		List<Event> events = execute(selectMethod(TestCase.class, "testWithEmptyName", String.class.getName()));
-		assertThat(events) //
+		var results = execute(selectMethod(TestCase.class, "testWithEmptyName", String.class.getName()));
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(container(), displayName("testWithEmptyName(String)"), //
 					finishedWithFailure(message(value -> value.contains("must be declared with a non-empty name")))));
 	}
 
 	@Test
 	void reportsExceptionForErroneousConverter() {
-		List<Event> events = execute(
-			selectMethod(TestCase.class, "testWithErroneousConverter", Object.class.getName()));
-		assertThat(events) //
+		var results = execute(selectMethod(TestCase.class, "testWithErroneousConverter", Object.class.getName()));
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(test(), finishedWithFailure(allOf(isA(ParameterResolutionException.class), //
 					message("Error converting parameter at index 0: something went horribly wrong")))));
 	}
 
 	@Test
 	void reportsContainerWithAssumptionFailureInMethodSourceAsAborted() {
-		List<Event> events = execute(
+		var results = execute(
 			selectMethod(AssumptionFailureInMethodSourceTestCase.class, "strings", String.class.getName()));
-		assertThat(events) //
+		results.all().assertThatEvents() //
 				.haveExactly(1, event(container("test-template:strings"), //
 					abortedWithReason(
 						allOf(isA(TestAbortedException.class), message("Assumption failed: nothing to test")))));
 	}
 
-	private List<Event> execute(DiscoverySelector... selectors) {
-		return EngineTestKit.execute("junit-jupiter", request().selectors(selectors).build()).all().list();
+	private EngineExecutionResults execute(DiscoverySelector... selectors) {
+		return EngineTestKit.engine(new JupiterTestEngine()).selectors(selectors).execute();
 	}
 
 	static class TestCase {
@@ -320,6 +334,36 @@ class ParameterizedTestIntegrationTests {
 
 		static Object twoDimensionalObjectArray() {
 			return new Object[][] { { "foo", 42 } };
+		}
+
+		@ParameterizedTest
+		@MethodSource
+		void X(int[] array) {
+			fail(Arrays.toString(array));
+		}
+
+		static Stream<int[]> X() {
+			return Stream.of(new int[] { 1, 2 }, new int[] { 5, 6 });
+		}
+
+		@ParameterizedTest
+		@MethodSource
+		void Y(Object[] array) {
+			fail(Arrays.toString(array));
+		}
+
+		static Stream<Object[]> Y() {
+			return Stream.of(new Object[] { "1", 2 }, new Object[] { "5", 6 });
+		}
+
+		@ParameterizedTest(name = "{arguments}")
+		@MethodSource("twoDimensionalIntArrayStream")
+		void testWithMethodSourceReturningStreamOf2dIntArray(int[][] array) {
+			fail(Arrays.deepToString(array));
+		}
+
+		static Stream<int[][]> twoDimensionalIntArrayStream() {
+			return Stream.of(new int[][] { { 1, 2 }, { 3, 4 } }, new int[][] { { 5, 6 }, { 7, 8 } });
 		}
 
 		@ParameterizedTest
