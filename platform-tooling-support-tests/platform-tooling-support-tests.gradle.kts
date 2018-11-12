@@ -1,13 +1,16 @@
+import org.jetbrains.kotlin.daemon.common.configureDaemonJVMOptions
+
 apply(from = "$rootDir/gradle/testing.gradle.kts")
 
 afterEvaluate {
+	java {
+		sourceCompatibility = JavaVersion.VERSION_1_10
+		targetCompatibility = JavaVersion.VERSION_1_10
+	}
 	tasks.withType<JavaCompile> {
-		val javaVersion = JavaVersion.VERSION_1_10
-		sourceCompatibility = javaVersion.toString()
-		targetCompatibility = javaVersion.toString()
 		options.encoding = "UTF-8"
 		options.compilerArgs.add("-parameters")
-		options.compilerArgs.addAll(listOf("--release", javaVersion.majorVersion))
+		options.compilerArgs.addAll(listOf("--release", java.targetCompatibility.majorVersion))
 	}
 }
 
@@ -30,7 +33,7 @@ dependencies {
 	}
 }
 
-tasks.named<Test>("test") {
+tasks.test {
 	// Opt-in via system property: '-Dplatform.tooling.support.tests.enabled=true'
 	enabled = System.getProperty("platform.tooling.support.tests.enabled")?.toBoolean() ?: false
 
