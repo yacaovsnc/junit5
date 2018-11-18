@@ -23,6 +23,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * @since 5.4
+ * @see <a href="https://github.com/junit-team/junit5/issues/1665">gh-1665</a>
+ * @see ParameterizedTestIntegrationTests
  */
 @Disabled("Only intended to be executed for manual inspection")
 @TestInstance(Lifecycle.PER_CLASS)
