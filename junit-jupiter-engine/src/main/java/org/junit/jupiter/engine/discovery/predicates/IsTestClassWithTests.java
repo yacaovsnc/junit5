@@ -10,13 +10,13 @@
 
 package org.junit.jupiter.engine.discovery.predicates;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
+import org.apiguardian.api.API;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.function.Predicate;
 
-import org.apiguardian.api.API;
-import org.junit.platform.commons.util.ReflectionUtils;
+import static org.apiguardian.api.API.Status.INTERNAL;
 
 /**
  * Test if a class is a JUnit Jupiter test class containing executable tests,
@@ -33,7 +33,7 @@ public class IsTestClassWithTests implements Predicate<Class<?>> {
 
 	private static final IsTestTemplateMethod isTestTemplateMethod = new IsTestTemplateMethod();
 
-	private static final Predicate<Method> isTestOrTestFactoryOrTestTemplateMethod = isTestMethod.or(
+	public static final Predicate<Method> isTestOrTestFactoryOrTestTemplateMethod = isTestMethod.or(
 		isTestFactoryMethod).or(isTestTemplateMethod);
 
 	private static final IsPotentialTestContainer isPotentialTestContainer = new IsPotentialTestContainer();

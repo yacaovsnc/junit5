@@ -10,9 +10,10 @@
 
 package org.junit.platform.engine;
 
-import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableList;
-import static org.apiguardian.api.API.Status.STABLE;
+import org.apiguardian.api.API;
+import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.util.Preconditions;
+import org.junit.platform.commons.util.ToStringBuilder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,10 +21,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.apiguardian.api.API;
-import org.junit.platform.commons.JUnitException;
-import org.junit.platform.commons.util.Preconditions;
-import org.junit.platform.commons.util.ToStringBuilder;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
+import static org.apiguardian.api.API.Status.STABLE;
 
 /**
  * {@code UniqueId} encapsulates the creation, parsing, and display of unique IDs
@@ -205,7 +205,15 @@ public class UniqueId implements Cloneable, Serializable {
 		return this.uniqueIdFormat.format(this);
 	}
 
-	/**
+	public UniqueId removeLastSegment() {
+		return new UniqueId(uniqueIdFormat, segments.subList(0, segments.size() - 1));
+	}
+
+    public Segment getLastSegment() {
+		return this.segments.get(this.segments.size() - 1);
+    }
+
+    /**
 	 * A segment of a {@link UniqueId} comprises a <em>type</em> and a
 	 * <em>value</em>.
 	 */

@@ -10,32 +10,6 @@
 
 package org.junit.jupiter.engine.discovery;
 
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
-import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
-import static org.junit.platform.commons.util.ClassUtils.nullSafeToString;
-import static org.junit.platform.commons.util.ReflectionUtils.findAllClassesInClasspathRoot;
-import static org.junit.platform.commons.util.ReflectionUtils.findAllClassesInModule;
-import static org.junit.platform.commons.util.ReflectionUtils.findAllClassesInPackage;
-import static org.junit.platform.commons.util.ReflectionUtils.findMethods;
-import static org.junit.platform.commons.util.ReflectionUtils.findNestedClasses;
-
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
@@ -58,6 +32,32 @@ import org.junit.platform.engine.discovery.ModuleSelector;
 import org.junit.platform.engine.discovery.PackageSelector;
 import org.junit.platform.engine.discovery.UniqueIdSelector;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
+import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
+import static org.junit.platform.commons.util.ClassUtils.nullSafeToString;
+import static org.junit.platform.commons.util.ReflectionUtils.findAllClassesInClasspathRoot;
+import static org.junit.platform.commons.util.ReflectionUtils.findAllClassesInModule;
+import static org.junit.platform.commons.util.ReflectionUtils.findAllClassesInPackage;
+import static org.junit.platform.commons.util.ReflectionUtils.findMethods;
+import static org.junit.platform.commons.util.ReflectionUtils.findNestedClasses;
+
 /**
  * <h3>NOTES TO DEVELOPERS</h3>
  *
@@ -74,7 +74,7 @@ import org.junit.platform.engine.discovery.UniqueIdSelector;
  *
  * @since 5.0
  */
-class JavaElementsResolver {
+public class JavaElementsResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(JavaElementsResolver.class);
 

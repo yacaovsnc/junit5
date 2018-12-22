@@ -10,10 +10,6 @@
 
 package org.junit.jupiter.engine;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
-
-import java.util.Optional;
-
 import org.apiguardian.api.API;
 import org.junit.jupiter.engine.config.CachingJupiterConfiguration;
 import org.junit.jupiter.engine.config.DefaultJupiterConfiguration;
@@ -31,6 +27,10 @@ import org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTe
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine;
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutorService;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
+
+import java.util.Optional;
+
+import static org.apiguardian.api.API.Status.INTERNAL;
 
 /**
  * The JUnit Jupiter {@link org.junit.platform.engine.TestEngine TestEngine}.
@@ -67,6 +67,7 @@ public final class JupiterTestEngine extends HierarchicalTestEngine<JupiterEngin
 			new DefaultJupiterConfiguration(discoveryRequest.getConfigurationParameters()));
 		JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(uniqueId, configuration);
 		new DiscoverySelectorResolver().resolveSelectors(discoveryRequest, configuration, engineDescriptor);
+//		new NewDiscoverySelectorResolver(discoveryRequest, configuration, engineDescriptor).resolve();
 		return engineDescriptor;
 	}
 
