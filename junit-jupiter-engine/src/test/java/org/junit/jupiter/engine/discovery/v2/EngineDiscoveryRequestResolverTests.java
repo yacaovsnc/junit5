@@ -117,7 +117,7 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selector).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstDebugLogRecord(listener, JavaClassConvertingSelectorResolver.class).getMessage())//
+		assertThat(firstDebugLogRecord(listener, JavaClassSelectorFilter.class).getMessage())//
 				.isEqualTo("Class 'org.example.DoesNotExist' could not be resolved.");
 	}
 
@@ -213,7 +213,7 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selector).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		LogRecord logRecord = firstDebugLogRecord(listener, JavaMethodConvertingSelectorResolver.class);
+		LogRecord logRecord = firstDebugLogRecord(listener, JavaMethodSelectorFilter.class);
 		assertThat(logRecord.getMessage())//
 				.isEqualTo("Method '" + methodName + "' in class '" + className + "' could not be resolved.");
 		assertThat(logRecord.getThrown())//
@@ -229,7 +229,7 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selector).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstDebugLogRecord(listener, JavaMethodConvertingSelectorResolver.class).getMessage())//
+		assertThat(firstDebugLogRecord(listener, JavaMethodSelectorFilter.class).getMessage())//
 				.isEqualTo("Method 'bogus' in class '" + MyTestClass.class.getName() + "' could not be resolved.");
 	}
 
@@ -330,7 +330,7 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selectUniqueId(uniqueId)).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		LogRecord logRecord = firstWarningLogRecord(listener, EngineDiscoveryRequestResolver.class);
+		LogRecord logRecord = firstWarningLogRecord(listener, JupiterTestMethodSelectorResolver.class);
 		assertThat(logRecord.getMessage()).isEqualTo("Unique ID '" + uniqueId + "' could not be resolved.");
 		assertThat(logRecord.getThrown())//
 				.isInstanceOf(JUnitException.class)//

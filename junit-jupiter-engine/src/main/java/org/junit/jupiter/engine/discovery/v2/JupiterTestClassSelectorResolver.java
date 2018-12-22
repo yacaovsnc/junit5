@@ -11,6 +11,9 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.discovery.ClassSelector;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.engine.discovery.MethodSelector;
 
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +26,8 @@ import static org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests
 import static org.junit.platform.commons.support.ReflectionSupport.findNestedClasses;
 import static org.junit.platform.commons.util.ClassUtils.nullSafeToString;
 import static org.junit.platform.commons.util.ReflectionUtils.findMethods;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 
 public class JupiterTestClassSelectorResolver implements SelectorResolver {
@@ -39,18 +44,18 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
 
     @Override
     public Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes() {
-        return singleton(JavaClassSelector.class);
+        return singleton(ClassSelector.class);
     }
 
     @Override
     public Optional<Result> resolveSelector(DiscoverySelector selector, Context context) {
-        if (selector instanceof JavaClassSelector) {
-            Class<?> testClass = ((JavaClassSelector) selector).getTestClass();
+        if (selector instanceof ClassSelector) {
+            Class<?> testClass = ((ClassSelector) selector).getJavaClass();
             if (isTestClassWithTests.test(testClass)) {
                 return toResult(context.addToEngine(parent -> Optional.of(newClassTestDescriptor(parent, testClass))));
             }
             if (isNestedTestClass.test(testClass)) {
-                return toResult(context.addToParentWithSelector(new JavaClassSelector(testClass.getEnclosingClass()),
+                return toResult(context.addToParentWithSelector(selectClass(testClass.getEnclosingClass()),
                         parent -> Optional.of(newNestedClassTestDescriptor(parent, testClass))));
             }
             logger.debug(() -> format("Class '%s' could not be resolved.", nullSafeToString(testClass)));
@@ -94,10 +99,10 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
             Class<?> testClass = it.getTestClass();
             // @formatter:off
             return Result.of(it, () -> {
-                Stream<JavaMethodSelector> methods = findMethods(testClass, isTestOrTestFactoryOrTestTemplateMethod).stream()
-                        .map(method -> new JavaMethodSelector(testClass, method));
-                Stream<JavaClassSelector> nestedClasses = findNestedClasses(testClass, isNestedTestClass).stream()
-                        .map(JavaClassSelector::new);
+                Stream<MethodSelector> methods = findMethods(testClass, isTestOrTestFactoryOrTestTemplateMethod).stream()
+                        .map(method -> selectMethod(testClass, method));
+                Stream<ClassSelector> nestedClasses = findNestedClasses(testClass, isNestedTestClass).stream()
+                        .map(DiscoverySelectors::selectClass);
                 return Stream.concat(methods, nestedClasses).collect(toSet());
             });
             // @formatter:on

@@ -2,6 +2,7 @@ package org.junit.jupiter.engine.discovery.v2;
 
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.EngineDiscoveryRequest;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelec
         if (classes.isEmpty()) {
             return emptySet();
         }
-        return classes.stream().map(JavaClassSelector::new).collect(toSet());
+        return classes.stream().map(DiscoverySelectors::selectClass).collect(toSet());
     }
 
     protected abstract List<Class<?>> findClasses(T selector);

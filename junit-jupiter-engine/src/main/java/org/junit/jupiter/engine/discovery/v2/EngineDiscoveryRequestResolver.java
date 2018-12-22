@@ -36,18 +36,21 @@ public class EngineDiscoveryRequestResolver {
 
 	private final EngineDiscoveryRequest request;
 	private final SelectorResolver.Context context;
-	private List<? extends SelectorResolver> resolvers;
+	private final List<SelectorFilter> filters;
+	private final List<? extends SelectorResolver> resolvers;
 	private final TestDescriptor engineDescriptor;
-	private Map<DiscoverySelector, SelectorResolver.Result> resolvedSelectors = new LinkedHashMap<>();
-	private Map<UniqueId, SelectorResolver.Result> resolvedUniqueIds = new LinkedHashMap<>();
-	private Queue<DiscoverySelector> remainingSelectors = new LinkedList<>();
+	private final Map<DiscoverySelector, SelectorResolver.Result> resolvedSelectors = new LinkedHashMap<>();
+	private final Map<UniqueId, SelectorResolver.Result> resolvedUniqueIds = new LinkedHashMap<>();
+	private final Queue<DiscoverySelector> remainingSelectors = new LinkedList<>();
 
 	public EngineDiscoveryRequestResolver(EngineDiscoveryRequest request, JupiterConfiguration configuration,
 										  TestDescriptor engineDescriptor) {
 		this.request = request;
+		filters = Arrays.asList(
+				new JavaClassSelectorFilter(),
+				new JavaMethodSelectorFilter()
+		);
 		resolvers = Arrays.asList(
-				new JavaClassConvertingSelectorResolver(),
-				new JavaMethodConvertingSelectorResolver(),
 				new ClassesInClasspathRootSelectorResolver(request, new IsTestClassWithTests()),
 				new ClassesInPackageSelectorResolver(request, new IsTestClassWithTests()),
 				new ClassesInModuleSelectorResolver(request, new IsTestClassWithTests()),
@@ -107,7 +110,9 @@ public class EngineDiscoveryRequestResolver {
 		// @formatter:on
 		while (!remainingSelectors.isEmpty()) {
 			DiscoverySelector selector = remainingSelectors.poll();
-			resolveCompletely(selector);
+			if (filters.stream().allMatch(filter -> filter.include(selector))) {
+				resolveCompletely(selector);
+			}
 		}
 	}
 

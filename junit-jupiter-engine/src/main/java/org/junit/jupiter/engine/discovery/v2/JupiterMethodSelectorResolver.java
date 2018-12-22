@@ -10,6 +10,7 @@ import org.junit.platform.commons.util.ClassUtils;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.discovery.MethodSelector;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static java.util.Collections.singleton;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 
 public abstract class JupiterMethodSelectorResolver implements SelectorResolver {
@@ -37,22 +39,22 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
 
     @Override
     public Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes() {
-        return singleton(JavaMethodSelector.class);
+        return singleton(MethodSelector.class);
     }
 
     @Override
     public Optional<Result> resolveSelector(DiscoverySelector selector, Context context) {
-        if (selector instanceof JavaMethodSelector) {
-            return resolveMethodSelector((JavaMethodSelector) selector, context);
+        if (selector instanceof MethodSelector) {
+            return resolveMethodSelector((MethodSelector) selector, context);
         }
         return Optional.empty();
     }
 
-    private Optional<Result> resolveMethodSelector(JavaMethodSelector selector, Context resolver) {
-        Method method = selector.getMethod();
+    private Optional<Result> resolveMethodSelector(MethodSelector selector, Context resolver) {
+        Method method = selector.getJavaMethod();
         if (methodPredicate.test(method)) {
-            Class<?> testClass = selector.getTestClass();
-            return resolver.addToParentWithSelector(new JavaClassSelector(testClass), parent ->
+            Class<?> testClass = selector.getJavaClass();
+            return resolver.addToParentWithSelector(selectClass(testClass), parent ->
                     Optional.of(createTestDescriptor(createUniqueId(method, parent), testClass, method)))
                     .map(Result::of);
         }
