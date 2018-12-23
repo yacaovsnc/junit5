@@ -133,12 +133,7 @@ public class EngineDiscoveryRequestResolver {
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.findFirst()
-				.map(result -> {
-					resolvedSelectors.put(selector, result);
-					result.getTestDescriptor()
-							.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result));
-					return result;
-				});
+				.map(result -> store(selector, result));
 		// @formatter:on
 	}
 
@@ -149,21 +144,21 @@ public class EngineDiscoveryRequestResolver {
 		if (!uniqueId.hasPrefix(engineDescriptor.getUniqueId())) {
 			return Optional.empty();
 		}
-		UniqueId.Segment lastSegment = uniqueId.getLastSegment();
-		UniqueId remainingUniqueId = uniqueId.removeLastSegment();
 		// @formatter:off
 		return resolvers.stream()
-				.map(resolver -> resolver.resolveUniqueId(lastSegment, remainingUniqueId, context))
+				.map(resolver -> resolver.resolveUniqueId(uniqueId, context))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.findFirst()
-				.map(result -> {
-					resolvedSelectors.put(selector, result);
-					result.getTestDescriptor()
-							.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result));
-					return result;
-				});
+				.map(result -> store(selector, result));
 		// @formatter:on
+	}
+
+	private SelectorResolver.Result store(DiscoverySelector selector, SelectorResolver.Result result) {
+		resolvedSelectors.put(selector, result);
+		result.getTestDescriptor()
+				.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result));
+		return result;
 	}
 
 	private void filter(TestDescriptor engineDescriptor, ClassFilter classFilter) {

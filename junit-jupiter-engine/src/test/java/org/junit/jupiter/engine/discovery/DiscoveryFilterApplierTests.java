@@ -10,20 +10,19 @@
 
 package org.junit.jupiter.engine.discovery;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.engine.descriptor.TestDescriptorBuilder.classTestDescriptor;
-import static org.junit.jupiter.engine.descriptor.TestDescriptorBuilder.engineDescriptor;
-import static org.junit.jupiter.engine.descriptor.TestDescriptorBuilder.nestedClassTestDescriptor;
-import static org.junit.platform.engine.Filter.composeFilters;
-import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
-import static org.junit.platform.engine.discovery.PackageNameFilter.excludePackageNames;
-import static org.junit.platform.engine.discovery.PackageNameFilter.includePackageNames;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.engine.descriptor.TestDescriptorBuilder.classTestDescriptor;
+import static org.junit.jupiter.engine.descriptor.TestDescriptorBuilder.engineDescriptor;
+import static org.junit.jupiter.engine.descriptor.TestDescriptorBuilder.nestedClassTestDescriptor;
+import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
+import static org.junit.platform.engine.discovery.PackageNameFilter.excludePackageNames;
+import static org.junit.platform.engine.discovery.PackageNameFilter.includePackageNames;
 
 /**
  * Microtests for {@link DiscoveryFilterApplier}.
@@ -142,7 +141,7 @@ class DiscoveryFilterApplierTests {
 
 	private void applyClassNamePredicate(TestDescriptor engineDescriptor, Filter<String> filter) {
 		DiscoveryFilterApplier applier = new DiscoveryFilterApplier();
-		applier.applyClassNamePredicate(composeFilters(filter).toPredicate(), engineDescriptor);
+		applier.applyClassNamePredicate(filter.toPredicate(), engineDescriptor);
 	}
 
 	private static class MatchingClass {

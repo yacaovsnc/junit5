@@ -2,6 +2,8 @@ package org.junit.jupiter.engine.discovery.v2;
 
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
+import org.junit.jupiter.engine.descriptor.DynamicDescendantFilter;
+import org.junit.jupiter.engine.descriptor.Filterable;
 import org.junit.jupiter.engine.discovery.MethodFinder;
 import org.junit.platform.commons.function.Try;
 import org.junit.platform.commons.logging.Logger;
@@ -13,6 +15,8 @@ import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.MethodSelector;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -30,11 +34,13 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
     protected final JupiterConfiguration configuration;
     private final Predicate<Method> methodPredicate;
     private final String segmentType;
+    private final Set<String> dynamicDescendantSegmentTypes;
 
-    public JupiterMethodSelectorResolver(JupiterConfiguration configuration, Predicate<Method> methodPredicate, String segmentType) {
+    public JupiterMethodSelectorResolver(JupiterConfiguration configuration, Predicate<Method> methodPredicate, String segmentType, String... dynamicDescendantSegmentTypes) {
         this.configuration = configuration;
         this.methodPredicate = methodPredicate;
         this.segmentType = segmentType;
+        this.dynamicDescendantSegmentTypes = new LinkedHashSet<>(Arrays.asList(dynamicDescendantSegmentTypes));
     }
 
     @Override
@@ -62,17 +68,36 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
     }
 
     @Override
-    public Optional<Result> resolveUniqueId(UniqueId.Segment segment, UniqueId prefix, Context context) {
-        if (segmentType.equals(segment.getType())) {
-            return context.addToParentWithSelector(selectUniqueId(prefix), parent -> {
-                String methodSpecPart = segment.getValue();
+    public Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context) {
+        Optional<TestDescriptor> testDescriptor = resolveUniqueIdIntoTestDescriptor(uniqueId, context);
+        testDescriptor.ifPresent(parent -> {
+            if (parent instanceof Filterable) {
+                DynamicDescendantFilter filter = ((Filterable) parent).getDynamicDescendantFilter();
+                if (uniqueId.equals(parent.getUniqueId())) {
+                    filter.allowAll();
+                } else {
+                    filter.allow(uniqueId);
+                }
+            }
+        });
+        return testDescriptor.map(Result::of);
+    }
+
+    private Optional<TestDescriptor> resolveUniqueIdIntoTestDescriptor(UniqueId uniqueId, Context context) {
+        UniqueId.Segment lastSegment = uniqueId.getLastSegment();
+        if (segmentType.equals(lastSegment.getType())) {
+            return context.addToParentWithSelector(selectUniqueId(uniqueId.removeLastSegment()), parent -> {
+                String methodSpecPart = lastSegment.getValue();
                 Class<?> testClass = ((ClassTestDescriptor) parent).getTestClass();
                 return Try.call(() -> METHOD_FINDER.findMethod(methodSpecPart, testClass).orElse(null))
-                        .ifFailure(exception -> logger.warn(exception, () -> String.format("Unique ID '%s' could not be resolved.", prefix.append(segment))))
+                        .ifFailure(exception -> logger.warn(exception, () -> String.format("Unique ID '%s' could not be resolved.", uniqueId)))
                         .toOptional()
                         .filter(methodPredicate)
                         .map(method -> createTestDescriptor(createUniqueId(method, parent), testClass, method));
-            }).map(Result::of);
+            });
+        }
+        if (dynamicDescendantSegmentTypes.contains(lastSegment.getType())) {
+            return resolveUniqueIdIntoTestDescriptor(uniqueId.removeLastSegment(), context);
         }
         return Optional.empty();
     }

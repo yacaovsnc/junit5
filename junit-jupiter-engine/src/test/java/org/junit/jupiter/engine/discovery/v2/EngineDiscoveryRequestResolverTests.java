@@ -314,7 +314,7 @@ class EngineDiscoveryRequestResolverTests {
 
 		resolve(request().selectors(selectUniqueId(uniqueId)).build());
 
-		assertTrue(engineDescriptor.getDescendants().isEmpty());
+		assertThat(engineDescriptor.getDescendants()).isEmpty();
 		LogRecord logRecord = firstWarningLogRecord(listener, JupiterTestMethodSelectorResolver.class);
 		assertThat(logRecord.getMessage()).isEqualTo("Unique ID '" + uniqueId + "' could not be resolved.");
 		assertThat(logRecord.getThrown())//

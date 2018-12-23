@@ -24,7 +24,7 @@ public abstract class ConvertingSelectorResolver implements SelectorResolver {
     protected abstract Set<? extends DiscoverySelector> convert(DiscoverySelector selector);
 
     @Override
-    public Optional<Result> resolveUniqueId(UniqueId.Segment segment, UniqueId prefix, Context context) {
+    public Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context) {
         return Optional.empty();
     }
 }

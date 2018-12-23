@@ -64,16 +64,17 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
     }
 
     @Override
-    public Optional<Result> resolveUniqueId(UniqueId.Segment segment, UniqueId prefix, Context context) {
-        if ("class".equals(segment.getType())) {
-            String className = segment.getValue();
+    public Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context) {
+        UniqueId.Segment lastSegment = uniqueId.getLastSegment();
+        if ("class".equals(lastSegment.getType())) {
+            String className = lastSegment.getValue();
             return ReflectionUtils.tryToLoadClass(className).toOptional()
                     .filter(isTestClassWithTests)
                     .flatMap(testClass -> toResult(context.addToEngine(parent -> Optional.of(newClassTestDescriptor(parent, testClass)))));
         }
-        if ("nested-class".equals(segment.getType())) {
-            String simpleClassName = segment.getValue();
-            return toResult(context.addToParentWithSelector(selectUniqueId(prefix), parent -> {
+        if ("nested-class".equals(lastSegment.getType())) {
+            String simpleClassName = lastSegment.getValue();
+            return toResult(context.addToParentWithSelector(selectUniqueId(uniqueId.removeLastSegment()), parent -> {
                 if (parent instanceof ClassTestDescriptor) {
                     String className = ((ClassTestDescriptor) parent).getTestClass().getName() + "$" + simpleClassName;
                     return ReflectionUtils.tryToLoadClass(className).toOptional()

@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 public class JupiterTestFactoryMethodSelectorResolver extends JupiterMethodSelectorResolver {
 
     public JupiterTestFactoryMethodSelectorResolver(JupiterConfiguration configuration) {
-        super(configuration, new IsTestFactoryMethod(), "test-factory");
+        super(configuration, new IsTestFactoryMethod(), "test-factory", TestFactoryTestDescriptor.DYNAMIC_CONTAINER_SEGMENT_TYPE, TestFactoryTestDescriptor.DYNAMIC_TEST_SEGMENT_TYPE);
     }
 
     @Override

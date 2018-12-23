@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 interface SelectorResolver {
     Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes();
     Optional<Result> resolveSelector(DiscoverySelector selector, Context context);
-    Optional<Result> resolveUniqueId(UniqueId.Segment segment, UniqueId prefix, Context context);
+    Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context);
 
     class Result {
         private final TestDescriptor testDescriptor;
