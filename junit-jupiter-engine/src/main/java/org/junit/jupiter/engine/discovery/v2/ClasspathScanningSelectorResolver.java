@@ -1,9 +1,7 @@
 package org.junit.jupiter.engine.discovery.v2;
 
 import org.junit.platform.engine.DiscoverySelector;
-import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 import java.util.List;
 import java.util.Set;
@@ -17,9 +15,9 @@ public abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelec
     protected final Predicate<String> classNameFilter;
     protected final Predicate<Class<?>> classFilter;
 
-    public ClasspathScanningSelectorResolver(Class<T> selectorClass, EngineDiscoveryRequest request, Predicate<Class<?>> classFilter) {
+    public ClasspathScanningSelectorResolver(Class<T> selectorClass, Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
         super(selectorClass);
-        this.classNameFilter = ClasspathScanningSupport.buildClassNamePredicate(request);
+        this.classNameFilter = classNameFilter;
         this.classFilter = classFilter;
     }
 

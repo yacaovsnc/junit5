@@ -12,12 +12,14 @@ package org.junit.jupiter.engine.discovery.v2;
 
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests;
-import org.junit.platform.commons.util.ClassFilter;
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.UniqueIdSelector;
+import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,10 +31,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
+
 public class EngineDiscoveryRequestResolver {
+
+	private static final Logger logger = LoggerFactory.getLogger(EngineDiscoveryRequestResolver.class);
 
 	private final EngineDiscoveryRequest request;
 	private final SelectorResolver.Context context;
@@ -50,11 +59,12 @@ public class EngineDiscoveryRequestResolver {
 				new JavaClassSelectorFilter(),
 				new JavaMethodSelectorFilter()
 		);
+		Predicate<String> classNameFilter = ClasspathScanningSupport.buildClassNamePredicate(request);
 		resolvers = Arrays.asList(
-				new ClassesInClasspathRootSelectorResolver(request, new IsTestClassWithTests()),
-				new ClassesInPackageSelectorResolver(request, new IsTestClassWithTests()),
-				new ClassesInModuleSelectorResolver(request, new IsTestClassWithTests()),
-				new JupiterTestClassSelectorResolver(configuration),
+				new ClassesInClasspathRootSelectorResolver(classNameFilter, new IsTestClassWithTests()),
+				new ClassesInPackageSelectorResolver(classNameFilter, new IsTestClassWithTests()),
+				new ClassesInModuleSelectorResolver(classNameFilter, new IsTestClassWithTests()),
+				new JupiterTestClassSelectorResolver(classNameFilter, configuration),
 				new JupiterTestMethodSelectorResolver(configuration),
 				new JupiterTestTemplateMethodSelectorResolver(configuration),
 				new JupiterTestFactoryMethodSelectorResolver(configuration)
@@ -90,9 +100,7 @@ public class EngineDiscoveryRequestResolver {
 	}
 
 	public void resolve() {
-//		ClassFilter classFilter = buildClassFilter(request, isTestClassWithTests);
 		doResolve();
-//		filter(engineDescriptor, classFilter);
 		pruneTree();
 	}
 
@@ -109,18 +117,43 @@ public class EngineDiscoveryRequestResolver {
 				.forEach(remainingSelectors::add);
 		// @formatter:on
 		while (!remainingSelectors.isEmpty()) {
-			DiscoverySelector selector = remainingSelectors.poll();
-			if (filters.stream().allMatch(filter -> filter.include(selector))) {
-				resolveCompletely(selector);
-			}
+			resolveCompletely(remainingSelectors.poll());
 		}
 	}
 
 	private void resolveCompletely(DiscoverySelector selector) {
-		resolve(selector).ifPresent(result -> remainingSelectors.addAll(result.getAdditionalSelectors()));
+		try {
+			Optional<SelectorResolver.Result> result = resolve(selector);
+			if (result.isPresent()) {
+				if (result.get().isPerfectMatch()) {
+					remainingSelectors.addAll(result.get().getAdditionalSelectors());
+				}
+			} else {
+				logUnresolvedSelector(selector, null);
+			}
+		} catch (Throwable t) {
+			rethrowIfBlacklisted(t);
+			logUnresolvedSelector(selector, t);
+		}
+	}
+
+	private void logUnresolvedSelector(DiscoverySelector selector, Throwable cause) {
+		BiConsumer<Throwable, Supplier<String>> loggingConsumer = logger::debug;
+		if (selector instanceof UniqueIdSelector) {
+			UniqueId uniqueId = ((UniqueIdSelector) selector).getUniqueId();
+			if (uniqueId.hasPrefix(engineDescriptor.getUniqueId())) {
+				loggingConsumer = logger::warn;
+			} else {
+				return;
+			}
+		}
+		loggingConsumer.accept(cause, () -> selector + " could not be resolved.");
 	}
 
 	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector) {
+		if (isExcluded(selector)) {
+			return Optional.empty();
+		}
 		if (resolvedSelectors.containsKey(selector)) {
 			return Optional.of(resolvedSelectors.get(selector));
 		}
@@ -135,6 +168,10 @@ public class EngineDiscoveryRequestResolver {
 				.findFirst()
 				.map(result -> store(selector, result));
 		// @formatter:on
+	}
+
+	private boolean isExcluded(DiscoverySelector selector) {
+		return filters.stream().anyMatch(filter -> !filter.include(selector));
 	}
 
 	private Optional<SelectorResolver.Result> resolveUniqueId(DiscoverySelector selector, UniqueId uniqueId) {
@@ -157,12 +194,8 @@ public class EngineDiscoveryRequestResolver {
 	private SelectorResolver.Result store(DiscoverySelector selector, SelectorResolver.Result result) {
 		resolvedSelectors.put(selector, result);
 		result.getTestDescriptor()
-				.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result));
+				.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result.withPerfectMatch()));
 		return result;
-	}
-
-	private void filter(TestDescriptor engineDescriptor, ClassFilter classFilter) {
-//		new DiscoveryFilterApplier().applyClassNamePredicate(classFilter::match, engineDescriptor);
 	}
 
 	private void pruneTree() {

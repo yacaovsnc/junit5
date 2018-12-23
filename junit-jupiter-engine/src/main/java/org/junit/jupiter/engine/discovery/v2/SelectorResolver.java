@@ -18,6 +18,7 @@ interface SelectorResolver {
     class Result {
         private final TestDescriptor testDescriptor;
         private final Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier;
+        private boolean perfectMatch = true;
 
         static Result of(TestDescriptor testDescriptor) {
             return new Result(testDescriptor, Collections::emptySet);
@@ -34,6 +35,23 @@ interface SelectorResolver {
         private Result(TestDescriptor testDescriptor, Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier) {
             this.testDescriptor = testDescriptor;
             this.additionalSelectorsSupplier = additionalSelectorsSupplier;
+        }
+
+        public boolean isPerfectMatch() {
+            return perfectMatch;
+        }
+
+        public Result withPerfectMatch() {
+            return withPerfectMatch(true);
+        }
+
+        public Result withPerfectMatch(boolean perfectMatch) {
+            if (this.perfectMatch == perfectMatch) {
+                return this;
+            }
+            Result result = new Result(testDescriptor, additionalSelectorsSupplier);
+            result.perfectMatch = perfectMatch;
+            return result;
         }
 
         Optional<TestDescriptor> getTestDescriptor() {

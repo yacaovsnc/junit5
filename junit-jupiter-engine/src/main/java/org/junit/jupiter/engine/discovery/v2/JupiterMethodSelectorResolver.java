@@ -2,12 +2,8 @@ package org.junit.jupiter.engine.discovery.v2;
 
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
-import org.junit.jupiter.engine.descriptor.DynamicDescendantFilter;
 import org.junit.jupiter.engine.descriptor.Filterable;
 import org.junit.jupiter.engine.discovery.MethodFinder;
-import org.junit.platform.commons.function.Try;
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.commons.util.ClassUtils;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
@@ -21,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
@@ -28,8 +25,6 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqu
 public abstract class JupiterMethodSelectorResolver implements SelectorResolver {
 
     private static final MethodFinder METHOD_FINDER = new MethodFinder();
-
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final JupiterConfiguration configuration;
     private final Predicate<Method> methodPredicate;
@@ -62,25 +57,34 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
             Class<?> testClass = selector.getJavaClass();
             return resolver.addToParentWithSelector(selectClass(testClass), parent ->
                     Optional.of(createTestDescriptor(createUniqueId(method, parent), testClass, method)))
-                    .map(Result::of);
+                    .map(this::toResult);
         }
         return Optional.empty();
     }
 
     @Override
     public Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context) {
-        Optional<TestDescriptor> testDescriptor = resolveUniqueIdIntoTestDescriptor(uniqueId, context);
-        testDescriptor.ifPresent(parent -> {
-            if (parent instanceof Filterable) {
-                DynamicDescendantFilter filter = ((Filterable) parent).getDynamicDescendantFilter();
-                if (uniqueId.equals(parent.getUniqueId())) {
-                    filter.allowAll();
+        return resolveUniqueIdIntoTestDescriptor(uniqueId, context).map(testDescriptor -> {
+            boolean perfectMatch = uniqueId.equals(testDescriptor.getUniqueId());
+            if (testDescriptor instanceof Filterable) {
+                Filterable filterable = (Filterable) testDescriptor;
+                if (perfectMatch) {
+                    filterable.getDynamicDescendantFilter().allowAll();
                 } else {
-                    filter.allow(uniqueId);
+                    filterable.getDynamicDescendantFilter().allow(uniqueId);
                 }
             }
+            return toResult(testDescriptor).withPerfectMatch(perfectMatch);
         });
-        return testDescriptor.map(Result::of);
+    }
+
+    private Result toResult(TestDescriptor testDescriptor) {
+        return Result.of(testDescriptor, () -> {
+            if (testDescriptor instanceof Filterable) {
+                ((Filterable) testDescriptor).getDynamicDescendantFilter().allowAll();
+            }
+            return emptySet();
+        });
     }
 
     private Optional<TestDescriptor> resolveUniqueIdIntoTestDescriptor(UniqueId uniqueId, Context context) {
@@ -89,11 +93,11 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
             return context.addToParentWithSelector(selectUniqueId(uniqueId.removeLastSegment()), parent -> {
                 String methodSpecPart = lastSegment.getValue();
                 Class<?> testClass = ((ClassTestDescriptor) parent).getTestClass();
-                return Try.call(() -> METHOD_FINDER.findMethod(methodSpecPart, testClass).orElse(null))
-                        .ifFailure(exception -> logger.warn(exception, () -> String.format("Unique ID '%s' could not be resolved.", uniqueId)))
-                        .toOptional()
+                // @formatter:off
+                return METHOD_FINDER.findMethod(methodSpecPart, testClass)
                         .filter(methodPredicate)
                         .map(method -> createTestDescriptor(createUniqueId(method, parent), testClass, method));
+                // @formatter:on
             });
         }
         if (dynamicDescendantSegmentTypes.contains(lastSegment.getType())) {

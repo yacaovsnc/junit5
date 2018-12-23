@@ -5,8 +5,6 @@ import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
 import org.junit.jupiter.engine.descriptor.NestedClassTestDescriptor;
 import org.junit.jupiter.engine.discovery.predicates.IsNestedTestClass;
 import org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests;
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
@@ -17,14 +15,13 @@ import org.junit.platform.engine.discovery.MethodSelector;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests.isTestOrTestFactoryOrTestTemplateMethod;
 import static org.junit.platform.commons.support.ReflectionSupport.findNestedClasses;
-import static org.junit.platform.commons.util.ClassUtils.nullSafeToString;
 import static org.junit.platform.commons.util.ReflectionUtils.findMethods;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
@@ -32,13 +29,14 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqu
 
 public class JupiterTestClassSelectorResolver implements SelectorResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(JupiterTestClassSelectorResolver.class);
     private static final IsTestClassWithTests isTestClassWithTests = new IsTestClassWithTests();
     private static final IsNestedTestClass isNestedTestClass = new IsNestedTestClass();
 
+    private final Predicate<String> classNameFilter;
     private final JupiterConfiguration configuration;
 
-    public JupiterTestClassSelectorResolver(JupiterConfiguration configuration) {
+    public JupiterTestClassSelectorResolver(Predicate<String> classNameFilter, JupiterConfiguration configuration) {
+        this.classNameFilter = classNameFilter;
         this.configuration = configuration;
     }
 
@@ -52,13 +50,14 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
         if (selector instanceof ClassSelector) {
             Class<?> testClass = ((ClassSelector) selector).getJavaClass();
             if (isTestClassWithTests.test(testClass)) {
-                return toResult(context.addToEngine(parent -> Optional.of(newClassTestDescriptor(parent, testClass))));
-            }
-            if (isNestedTestClass.test(testClass)) {
+                // Nested tests are never filtered out
+                if (classNameFilter.test(testClass.getName())) {
+                    return toResult(context.addToEngine(parent -> Optional.of(newClassTestDescriptor(parent, testClass))));
+                }
+            } else if (isNestedTestClass.test(testClass)) {
                 return toResult(context.addToParentWithSelector(selectClass(testClass.getEnclosingClass()),
                         parent -> Optional.of(newNestedClassTestDescriptor(parent, testClass))));
             }
-            logger.debug(() -> format("Class '%s' could not be resolved.", nullSafeToString(testClass)));
         }
         return Optional.empty();
     }

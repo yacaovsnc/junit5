@@ -10,9 +10,9 @@
 
 package org.junit.platform.engine;
 
-import static org.apiguardian.api.API.Status.STABLE;
-
 import org.apiguardian.api.API;
+
+import static org.apiguardian.api.API.Status.STABLE;
 
 /**
  * A selector defines what a {@link TestEngine} can use to discover tests

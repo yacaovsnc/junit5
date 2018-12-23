@@ -95,8 +95,8 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selectClass(AbstractTestClass.class)).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstDebugLogRecord(listener, JupiterTestClassSelectorResolver.class).getMessage())//
-				.isEqualTo("Class 'org.junit.jupiter.engine.discovery.v2.AbstractTestClass' could not be resolved.");
+		assertThat(firstDebugLogRecord(listener).getMessage())//
+				.isEqualTo("ClassSelector [className = '" + AbstractTestClass.class.getName() +	"'] could not be resolved.");
 	}
 
 	@Test
@@ -117,8 +117,8 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selector).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstDebugLogRecord(listener, JavaClassSelectorFilter.class).getMessage())//
-				.isEqualTo("Class 'org.example.DoesNotExist' could not be resolved.");
+		assertThat(firstDebugLogRecord(listener).getMessage())//
+				.isEqualTo("ClassSelector [className = 'org.example.DoesNotExist'] could not be resolved.");
 	}
 
 	@Test
@@ -213,9 +213,10 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selector).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		LogRecord logRecord = firstDebugLogRecord(listener, JavaMethodSelectorFilter.class);
+		LogRecord logRecord = firstDebugLogRecord(listener);
 		assertThat(logRecord.getMessage())//
-				.isEqualTo("Method '" + methodName + "' in class '" + className + "' could not be resolved.");
+				.startsWith("MethodSelector").endsWith("could not be resolved.")//
+				.contains(className, methodName);
 		assertThat(logRecord.getThrown())//
 				.isInstanceOf(PreconditionViolationException.class)//
 				.hasMessageStartingWith("Could not load class with name: " + className);
@@ -229,8 +230,9 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selector).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstDebugLogRecord(listener, JavaMethodSelectorFilter.class).getMessage())//
-				.isEqualTo("Method 'bogus' in class '" + MyTestClass.class.getName() + "' could not be resolved.");
+		assertThat(firstDebugLogRecord(listener).getMessage())//
+				.startsWith("MethodSelector").endsWith("could not be resolved.")//
+				.contains(MyTestClass.class.getName(), "bogus");
 	}
 
 	@Test
@@ -279,8 +281,8 @@ class EngineDiscoveryRequestResolverTests {
 
 		resolve(request);
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstWarningLogRecord(listener, EngineDiscoveryRequestResolver.class).getMessage()) //
-				.isEqualTo("Unique ID '" + uniqueId + "' could not be resolved.");
+		assertThat(firstWarningLogRecord(listener).getMessage()) //
+				.isEqualTo("UniqueIdSelector [uniqueId = " + uniqueId + "] could not be resolved.");
 	}
 
 	@Test
@@ -300,8 +302,8 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selectUniqueId(uniqueId)).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		LogRecord logRecord = firstWarningLogRecord(listener, JupiterTestMethodSelectorResolver.class);
-		assertThat(logRecord.getMessage()).isEqualTo("Unique ID '" + uniqueId + "' could not be resolved.");
+		LogRecord logRecord = firstWarningLogRecord(listener);
+		assertThat(logRecord.getMessage()).isEqualTo("UniqueIdSelector [uniqueId = " + uniqueId + "] could not be resolved.");
 		assertThat(logRecord.getThrown())//
 				.isInstanceOf(PreconditionViolationException.class)//
 				.hasMessageStartingWith("Method [()] does not match pattern");
@@ -315,8 +317,8 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selectUniqueId(uniqueId)).build());
 
 		assertThat(engineDescriptor.getDescendants()).isEmpty();
-		LogRecord logRecord = firstWarningLogRecord(listener, JupiterTestMethodSelectorResolver.class);
-		assertThat(logRecord.getMessage()).isEqualTo("Unique ID '" + uniqueId + "' could not be resolved.");
+		LogRecord logRecord = firstWarningLogRecord(listener);
+		assertThat(logRecord.getMessage()).isEqualTo("UniqueIdSelector [uniqueId = " + uniqueId + "] could not be resolved.");
 		assertThat(logRecord.getThrown())//
 				.isInstanceOf(PreconditionViolationException.class)//
 				.hasMessageStartingWith("Method [methodName] does not match pattern");
@@ -330,8 +332,8 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request().selectors(selectUniqueId(uniqueId)).build());
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		LogRecord logRecord = firstWarningLogRecord(listener, JupiterTestMethodSelectorResolver.class);
-		assertThat(logRecord.getMessage()).isEqualTo("Unique ID '" + uniqueId + "' could not be resolved.");
+		LogRecord logRecord = firstWarningLogRecord(listener);
+		assertThat(logRecord.getMessage()).isEqualTo("UniqueIdSelector [uniqueId = " + uniqueId + "] could not be resolved.");
 		assertThat(logRecord.getThrown())//
 				.isInstanceOf(JUnitException.class)//
 				.hasMessage("Failed to load parameter type [%s] for method [%s] in class [%s].", "junit.foo.Enigma",
@@ -376,7 +378,6 @@ class EngineDiscoveryRequestResolverTests {
 		assertThat(uniqueIds).contains(uniqueIdForClass(HerTestClass.class));
 		assertThat(uniqueIds).contains(uniqueIdForMethod(HerTestClass.class, "test7(java.lang.String)"));
 
-		assertZeroLogRecords(listener, EngineDiscoveryRequestResolver.class);
 	}
 
 	@Test
@@ -388,10 +389,8 @@ class EngineDiscoveryRequestResolverTests {
 		resolve(request);
 
 		assertTrue(engineDescriptor.getDescendants().isEmpty());
-		assertThat(firstWarningLogRecord(listener, EngineDiscoveryRequestResolver.class).getMessage())//
-				.isEqualTo("Unique ID '" + uniqueId + "' could only be partially resolved. "
-						+ "All resolved segments will be executed; however, the following segments "
-						+ "could not be resolved: [Segment [type = 'method', value = 'test7(java.math.BigDecimal)']]");
+		assertThat(firstWarningLogRecord(listener).getMessage())//
+				.isEqualTo("UniqueIdSelector [uniqueId = " + uniqueId + "] could not be resolved.");
 	}
 
 	@Test
@@ -638,7 +637,7 @@ class EngineDiscoveryRequestResolverTests {
 		assertThat(dynamicDescendantFilter.test(dynamicTestUid)).isTrue();
 		assertThat(dynamicDescendantFilter.test(differentDynamicTestUid)).isFalse();
 
-		assertZeroLogRecords(listener, EngineDiscoveryRequestResolver.class);
+		assertZeroLogRecords(listener);
 	}
 
 	@Test
@@ -663,7 +662,7 @@ class EngineDiscoveryRequestResolverTests {
 		assertThat(dynamicDescendantFilter.test(differentDynamicContainerUid)).isFalse();
 		assertThat(dynamicDescendantFilter.test(differentDynamicTestUid)).isFalse();
 
-		assertZeroLogRecords(listener, EngineDiscoveryRequestResolver.class);
+		assertZeroLogRecords(listener);
 	}
 
 	@Test
@@ -716,17 +715,17 @@ class EngineDiscoveryRequestResolverTests {
 		return engineDescriptor.getDescendants().stream().map(TestDescriptor::getUniqueId).collect(toList());
 	}
 
-	private void assertZeroLogRecords(LogRecordListener listener, Class<?> clazz) {
-		assertThat(listener.stream(clazz)).isEmpty();
+	private void assertZeroLogRecords(LogRecordListener listener) {
+		assertThat(listener.stream(EngineDiscoveryRequestResolver.class)).isEmpty();
 	}
 
-	private LogRecord firstWarningLogRecord(LogRecordListener listener, Class<?> clazz) throws AssertionError {
-		return listener.stream(clazz, Level.WARNING).findFirst().orElseThrow(
+	private LogRecord firstWarningLogRecord(LogRecordListener listener) throws AssertionError {
+		return listener.stream(EngineDiscoveryRequestResolver.class, Level.WARNING).findFirst().orElseThrow(
 			() -> new AssertionError("Failed to find warning log record"));
 	}
 
-	private LogRecord firstDebugLogRecord(LogRecordListener listener, Class<?> clazz) throws AssertionError {
-		return listener.stream(clazz, Level.FINE).findFirst().orElseThrow(
+	private LogRecord firstDebugLogRecord(LogRecordListener listener) throws AssertionError {
+		return listener.stream(EngineDiscoveryRequestResolver.class, Level.FINE).findFirst().orElseThrow(
 			() -> new AssertionError("Failed to find debug log record"));
 	}
 

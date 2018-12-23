@@ -1,7 +1,5 @@
 package org.junit.jupiter.engine.discovery.v2;
 
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.UniqueId;
 
@@ -9,8 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public abstract class ConvertingSelectorResolver implements SelectorResolver {
-
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public Optional<Result> resolveSelector(DiscoverySelector selector, Context context) {
