@@ -100,13 +100,8 @@ public class EngineDiscoveryRequestResolver {
 	}
 
 	private void doResolve() {
-		Set<Class<? extends DiscoverySelector>> selectorTypes = resolvers.stream()
-				.map(SelectorResolver::getSupportedSelectorTypes)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toCollection(LinkedHashSet::new));
-		selectorTypes.add(UniqueIdSelector.class);
 		// @formatter:off
-		selectorTypes.stream()
+		getSupportedSelectorTypes().stream()
 				.map(request::getSelectorsByType)
 				.flatMap(Collection::stream)
 				.forEach(remainingSelectors::add);
@@ -114,6 +109,17 @@ public class EngineDiscoveryRequestResolver {
 		while (!remainingSelectors.isEmpty()) {
 			resolveCompletely(remainingSelectors.poll());
 		}
+	}
+
+	private Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes() {
+		// @formatter:off
+		Set<Class<? extends DiscoverySelector>> selectorTypes = resolvers.stream()
+				.map(SelectorResolver::getSupportedSelectorTypes)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+		// @formatter:on
+		selectorTypes.add(UniqueIdSelector.class);
+		return selectorTypes;
 	}
 
 	private void resolveCompletely(DiscoverySelector selector) {
@@ -132,6 +138,42 @@ public class EngineDiscoveryRequestResolver {
 		}
 	}
 
+	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector) {
+		if (resolvedSelectors.containsKey(selector)) {
+			return Optional.of(resolvedSelectors.get(selector));
+		}
+		if (selector instanceof UniqueIdSelector) {
+			return resolveUniqueId(selector, ((UniqueIdSelector) selector).getUniqueId());
+		}
+		return resolve(selector, resolver -> resolver.resolveSelector(selector, context));
+	}
+
+	private Optional<SelectorResolver.Result> resolveUniqueId(DiscoverySelector selector, UniqueId uniqueId) {
+		if (resolvedUniqueIds.containsKey(uniqueId)) {
+			return Optional.of(resolvedUniqueIds.get(uniqueId));
+		}
+		if (!uniqueId.hasPrefix(engineDescriptor.getUniqueId())) {
+			return Optional.empty();
+		}
+		return resolve(selector, resolver -> resolver.resolveUniqueId(uniqueId, context));
+	}
+
+	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector, Function<SelectorResolver, Optional<SelectorResolver.Result>> resolutionFunction) {
+		// @formatter:off
+		return resolvers.stream()
+				.map(resolutionFunction)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.findFirst()
+				.map(result -> {
+					resolvedSelectors.put(selector, result);
+					result.getTestDescriptor()
+							.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result.withPerfectMatch()));
+					return result;
+				});
+		// @formatter:on
+	}
+
 	private void logUnresolvedSelector(DiscoverySelector selector, Throwable cause) {
 		BiConsumer<Throwable, Supplier<String>> loggingConsumer = logger::debug;
 		if (selector instanceof UniqueIdSelector) {
@@ -143,47 +185,6 @@ public class EngineDiscoveryRequestResolver {
 			}
 		}
 		loggingConsumer.accept(cause, () -> selector + " could not be resolved.");
-	}
-
-	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector) {
-		if (resolvedSelectors.containsKey(selector)) {
-			return Optional.of(resolvedSelectors.get(selector));
-		}
-		if (selector instanceof UniqueIdSelector) {
-			return resolveUniqueId(selector, ((UniqueIdSelector) selector).getUniqueId());
-		}
-		// @formatter:off
-		return resolvers.stream()
-				.map(resolver -> resolver.resolveSelector(selector, context))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.findFirst()
-				.map(result -> store(selector, result));
-		// @formatter:on
-	}
-
-	private Optional<SelectorResolver.Result> resolveUniqueId(DiscoverySelector selector, UniqueId uniqueId) {
-		if (resolvedUniqueIds.containsKey(uniqueId)) {
-			return Optional.of(resolvedUniqueIds.get(uniqueId));
-		}
-		if (!uniqueId.hasPrefix(engineDescriptor.getUniqueId())) {
-			return Optional.empty();
-		}
-		// @formatter:off
-		return resolvers.stream()
-				.map(resolver -> resolver.resolveUniqueId(uniqueId, context))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.findFirst()
-				.map(result -> store(selector, result));
-		// @formatter:on
-	}
-
-	private SelectorResolver.Result store(DiscoverySelector selector, SelectorResolver.Result result) {
-		resolvedSelectors.put(selector, result);
-		result.getTestDescriptor()
-				.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result.withPerfectMatch()));
-		return result;
 	}
 
 	private void pruneTree() {
