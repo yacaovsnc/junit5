@@ -23,6 +23,7 @@ import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -45,7 +46,8 @@ public class EngineDiscoveryRequestResolver {
 
 	private final EngineDiscoveryRequest request;
 	private final SelectorResolver.Context context;
-	private final List<? extends SelectorResolver> resolvers;
+	private final List<SelectorResolver> resolvers;
+	private final List<TestDescriptor.Visitor> visitors;
 	private final TestDescriptor engineDescriptor;
 	private final Map<DiscoverySelector, SelectorResolver.Result> resolvedSelectors = new LinkedHashMap<>();
 	private final Map<UniqueId, SelectorResolver.Result> resolvedUniqueIds = new LinkedHashMap<>();
@@ -64,6 +66,7 @@ public class EngineDiscoveryRequestResolver {
 				new JupiterTestTemplateMethodSelectorResolver(configuration),
 				new JupiterTestFactoryMethodSelectorResolver(configuration)
 		);
+		visitors = Collections.singletonList(TestDescriptor::prune);
 		this.engineDescriptor = engineDescriptor;
 		this.context = new SelectorResolver.Context() {
 			@Override
@@ -95,11 +98,6 @@ public class EngineDiscoveryRequestResolver {
 	}
 
 	public void resolve() {
-		doResolve();
-		pruneTree();
-	}
-
-	private void doResolve() {
 		// @formatter:off
 		getSupportedSelectorTypes().stream()
 				.map(request::getSelectorsByType)
@@ -109,6 +107,7 @@ public class EngineDiscoveryRequestResolver {
 		while (!remainingSelectors.isEmpty()) {
 			resolveCompletely(remainingSelectors.poll());
 		}
+		visitors.forEach(engineDescriptor::accept);
 	}
 
 	private Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes() {
@@ -185,10 +184,6 @@ public class EngineDiscoveryRequestResolver {
 			}
 		}
 		loggingConsumer.accept(cause, () -> selector + " could not be resolved.");
-	}
-
-	private void pruneTree() {
-		engineDescriptor.accept(TestDescriptor::prune);
 	}
 
 }
