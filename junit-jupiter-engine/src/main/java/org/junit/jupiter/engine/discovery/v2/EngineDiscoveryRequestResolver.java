@@ -45,7 +45,6 @@ public class EngineDiscoveryRequestResolver {
 
 	private final EngineDiscoveryRequest request;
 	private final SelectorResolver.Context context;
-	private final List<SelectorFilter> filters;
 	private final List<? extends SelectorResolver> resolvers;
 	private final TestDescriptor engineDescriptor;
 	private final Map<DiscoverySelector, SelectorResolver.Result> resolvedSelectors = new LinkedHashMap<>();
@@ -55,10 +54,6 @@ public class EngineDiscoveryRequestResolver {
 	public EngineDiscoveryRequestResolver(EngineDiscoveryRequest request, JupiterConfiguration configuration,
 										  TestDescriptor engineDescriptor) {
 		this.request = request;
-		filters = Arrays.asList(
-				new JavaClassSelectorFilter(),
-				new JavaMethodSelectorFilter()
-		);
 		Predicate<String> classNameFilter = ClasspathScanningSupport.buildClassNamePredicate(request);
 		resolvers = Arrays.asList(
 				new ClassesInClasspathRootSelectorResolver(classNameFilter, new IsTestClassWithTests()),
@@ -151,9 +146,6 @@ public class EngineDiscoveryRequestResolver {
 	}
 
 	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector) {
-		if (isExcluded(selector)) {
-			return Optional.empty();
-		}
 		if (resolvedSelectors.containsKey(selector)) {
 			return Optional.of(resolvedSelectors.get(selector));
 		}
@@ -168,10 +160,6 @@ public class EngineDiscoveryRequestResolver {
 				.findFirst()
 				.map(result -> store(selector, result));
 		// @formatter:on
-	}
-
-	private boolean isExcluded(DiscoverySelector selector) {
-		return filters.stream().anyMatch(filter -> !filter.include(selector));
 	}
 
 	private Optional<SelectorResolver.Result> resolveUniqueId(DiscoverySelector selector, UniqueId uniqueId) {
