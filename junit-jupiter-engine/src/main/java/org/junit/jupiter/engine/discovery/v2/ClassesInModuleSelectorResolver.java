@@ -17,9 +17,12 @@ import java.util.function.Predicate;
 
 import org.junit.platform.engine.discovery.ModuleSelector;
 
-public class ClassesInModuleSelectorResolver extends ClasspathScanningSelectorResolver<ModuleSelector> {
+/**
+ * @since 5.4
+ */
+class ClassesInModuleSelectorResolver extends ClasspathScanningSelectorResolver<ModuleSelector> {
 
-	public ClassesInModuleSelectorResolver(Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
+	ClassesInModuleSelectorResolver(Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
 		super(ModuleSelector.class, classNameFilter, classFilter);
 	}
 

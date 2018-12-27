@@ -20,13 +20,16 @@ import java.util.function.Predicate;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 
-public abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelector>
+/**
+ * @since 5.4
+ */
+abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelector>
 		extends SingleTypeConvertingSelectorResolver<T> {
 
-	protected final Predicate<String> classNameFilter;
-	protected final Predicate<Class<?>> classFilter;
+	final Predicate<String> classNameFilter;
+	final Predicate<Class<?>> classFilter;
 
-	public ClasspathScanningSelectorResolver(Class<T> selectorClass, Predicate<String> classNameFilter,
+	ClasspathScanningSelectorResolver(Class<T> selectorClass, Predicate<String> classNameFilter,
 			Predicate<Class<?>> classFilter) {
 		super(selectorClass);
 		this.classNameFilter = classNameFilter;

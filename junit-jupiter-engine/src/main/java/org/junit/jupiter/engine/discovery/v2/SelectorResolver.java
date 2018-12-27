@@ -10,16 +10,23 @@
 
 package org.junit.jupiter.engine.discovery.v2;
 
+import static org.apiguardian.api.API.Status.EXPERIMENTAL;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.apiguardian.api.API;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 
+/**
+ * @since 5.4
+ */
+@API(status = EXPERIMENTAL, since = "5.4")
 public interface SelectorResolver {
 
 	Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes();
@@ -28,13 +35,21 @@ public interface SelectorResolver {
 
 	Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context);
 
+	/**
+	 * @since 5.4
+	 */
+	@API(status = EXPERIMENTAL, since = "5.4")
 	interface Context {
-		<T extends TestDescriptor> Optional<T> addToEngine(Function<TestDescriptor, Optional<T>> creator);
+		<T extends TestDescriptor> Optional<T> addToParent(Function<TestDescriptor, Optional<T>> creator);
 
-		<T extends TestDescriptor> Optional<T> addToParentWithSelector(DiscoverySelector selector,
+		<T extends TestDescriptor> Optional<T> addToParent(Supplier<DiscoverySelector> parentSelectorSupplier,
 				Function<TestDescriptor, Optional<T>> creator);
 	}
 
+	/**
+	 * @since 5.4
+	 */
+	@API(status = EXPERIMENTAL, since = "5.4")
 	class Result {
 		private final TestDescriptor testDescriptor;
 		private final Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier;

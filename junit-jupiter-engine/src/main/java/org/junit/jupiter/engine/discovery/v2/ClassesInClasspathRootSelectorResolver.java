@@ -16,9 +16,12 @@ import java.util.function.Predicate;
 import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.engine.discovery.ClasspathRootSelector;
 
-public class ClassesInClasspathRootSelectorResolver extends ClasspathScanningSelectorResolver<ClasspathRootSelector> {
+/**
+ * @since 5.4
+ */
+class ClassesInClasspathRootSelectorResolver extends ClasspathScanningSelectorResolver<ClasspathRootSelector> {
 
-	public ClassesInClasspathRootSelectorResolver(Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
+	ClassesInClasspathRootSelectorResolver(Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
 		super(ClasspathRootSelector.class, classNameFilter, classFilter);
 	}
 

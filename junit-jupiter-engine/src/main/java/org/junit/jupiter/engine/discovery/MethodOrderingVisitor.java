@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
@@ -62,13 +64,17 @@ class MethodOrderingVisitor implements TestDescriptor.Visitor {
 				.map(ReflectionUtils::newInstance)//
 				.ifPresent(methodOrderer -> {
 
-					List<DefaultMethodDescriptor> methodDescriptors = classTestDescriptor.getChildren().stream()//
+					Set<? extends TestDescriptor> children = classTestDescriptor.getChildren();
+
+					List<TestDescriptor> nonMethodTestDescriptors = children.stream()//
+							.filter(testDescriptor -> !(testDescriptor instanceof MethodBasedTestDescriptor))//
+							.collect(Collectors.toList());
+
+					List<DefaultMethodDescriptor> methodDescriptors = children.stream()//
 							.filter(MethodBasedTestDescriptor.class::isInstance)//
 							.map(MethodBasedTestDescriptor.class::cast)//
 							.map(DefaultMethodDescriptor::new)//
 							.collect(toCollection(ArrayList::new));
-
-					// TODO Handle other items
 
 					// Make a local copy for later validation
 					Set<DefaultMethodDescriptor> originalMethodDescriptors = new LinkedHashSet<>(methodDescriptors);
@@ -89,14 +95,16 @@ class MethodOrderingVisitor implements TestDescriptor.Visitor {
 							methodOrderer.getClass().getName(), -difference, testClass.getName()));
 					}
 
-					Set<TestDescriptor> sortedTestDescriptors = methodDescriptors.stream()//
+					Set<TestDescriptor> sortedMethodTestDescriptors = methodDescriptors.stream()//
 							.filter(originalMethodDescriptors::contains)//
 							.map(DefaultMethodDescriptor::getTestDescriptor)//
 							.collect(toCollection(LinkedHashSet::new));
 
 					// Currently no way to removeAll or addAll children at once.
-					sortedTestDescriptors.forEach(classTestDescriptor::removeChild);
-					sortedTestDescriptors.forEach(classTestDescriptor::addChild);
+					Stream.concat(sortedMethodTestDescriptors.stream(), nonMethodTestDescriptors.stream())//
+							.forEach(classTestDescriptor::removeChild);
+					Stream.concat(sortedMethodTestDescriptors.stream(), nonMethodTestDescriptors.stream())//
+							.forEach(classTestDescriptor::addChild);
 
 					// Note: MethodOrderer#getDefaultExecutionMode() is guaranteed
 					// to be invoked after MethodOrderer#orderMethods().

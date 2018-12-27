@@ -11,17 +11,21 @@
 package org.junit.jupiter.engine.discovery;
 
 import static java.util.Collections.singleton;
-import static java.util.stream.Collectors.toSet;
+import static java.util.function.Predicate.isEqual;
+import static java.util.stream.Collectors.toCollection;
 import static org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests.isTestOrTestFactoryOrTestTemplateMethod;
 import static org.junit.platform.commons.support.ReflectionSupport.findNestedClasses;
+import static org.junit.platform.commons.util.FunctionUtils.where;
 import static org.junit.platform.commons.util.ReflectionUtils.findMethods;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.engine.config.JupiterConfiguration;
@@ -64,11 +68,11 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
 				// Nested tests are never filtered out
 				if (classNameFilter.test(testClass.getName())) {
 					return toResult(
-						context.addToEngine(parent -> Optional.of(newClassTestDescriptor(parent, testClass))));
+						context.addToParent(parent -> Optional.of(newClassTestDescriptor(parent, testClass))));
 				}
 			}
 			else if (isNestedTestClass.test(testClass)) {
-				return toResult(context.addToParentWithSelector(selectClass(testClass.getEnclosingClass()),
+				return toResult(context.addToParent(() -> selectClass(testClass.getEnclosingClass()),
 					parent -> Optional.of(newNestedClassTestDescriptor(parent, testClass))));
 			}
 		}
@@ -78,19 +82,21 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
 	@Override
 	public Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context) {
 		UniqueId.Segment lastSegment = uniqueId.getLastSegment();
-		if ("class".equals(lastSegment.getType())) {
+		if (ClassTestDescriptor.SEGMENT_TYPE.equals(lastSegment.getType())) {
 			String className = lastSegment.getValue();
 			return ReflectionUtils.tryToLoadClass(className).toOptional().filter(isTestClassWithTests).flatMap(
 				testClass -> toResult(
-					context.addToEngine(parent -> Optional.of(newClassTestDescriptor(parent, testClass)))));
+					context.addToParent(parent -> Optional.of(newClassTestDescriptor(parent, testClass)))));
 		}
-		if ("nested-class".equals(lastSegment.getType())) {
+		if (NestedClassTestDescriptor.SEGMENT_TYPE.equals(lastSegment.getType())) {
 			String simpleClassName = lastSegment.getValue();
-			return toResult(context.addToParentWithSelector(selectUniqueId(uniqueId.removeLastSegment()), parent -> {
+			return toResult(context.addToParent(() -> selectUniqueId(uniqueId.removeLastSegment()), parent -> {
 				if (parent instanceof ClassTestDescriptor) {
-					String className = ((ClassTestDescriptor) parent).getTestClass().getName() + "$" + simpleClassName;
-					return ReflectionUtils.tryToLoadClass(className).toOptional().filter(isNestedTestClass).flatMap(
-						testClass -> Optional.of(newNestedClassTestDescriptor(parent, testClass)));
+					Class<?> parentTestClass = ((ClassTestDescriptor) parent).getTestClass();
+					return ReflectionUtils.findNestedClasses(parentTestClass,
+						isNestedTestClass.and(
+							where(Class::getSimpleName, isEqual(simpleClassName)))).stream().findFirst().flatMap(
+								testClass -> Optional.of(newNestedClassTestDescriptor(parent, testClass)));
 				}
 				return Optional.empty();
 			}));
@@ -99,13 +105,15 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
 	}
 
 	private ClassTestDescriptor newClassTestDescriptor(TestDescriptor parent, Class<?> testClass) {
-		return new ClassTestDescriptor(parent.getUniqueId().append("class", testClass.getName()), testClass,
+		return new ClassTestDescriptor(
+			parent.getUniqueId().append(ClassTestDescriptor.SEGMENT_TYPE, testClass.getName()), testClass,
 			configuration);
 	}
 
 	private NestedClassTestDescriptor newNestedClassTestDescriptor(TestDescriptor parent, Class<?> testClass) {
-		return new NestedClassTestDescriptor(parent.getUniqueId().append("nested-class", testClass.getSimpleName()),
-			testClass, configuration);
+		return new NestedClassTestDescriptor(
+			parent.getUniqueId().append(NestedClassTestDescriptor.SEGMENT_TYPE, testClass.getSimpleName()), testClass,
+			configuration);
 	}
 
 	private Optional<Result> toResult(Optional<ClassTestDescriptor> testDescriptor) {
@@ -115,9 +123,9 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
             return Result.of(it, () -> {
                 Stream<MethodSelector> methods = findMethods(testClass, isTestOrTestFactoryOrTestTemplateMethod).stream()
                         .map(method -> selectMethod(testClass, method));
-                Stream<ClassSelector> nestedClasses = findNestedClasses(testClass, isNestedTestClass).stream()
-                        .map(DiscoverySelectors::selectClass);
-                return Stream.concat(methods, nestedClasses).collect(toSet());
+				Stream<ClassSelector> nestedClasses = findNestedClasses(testClass, isNestedTestClass).stream()
+						.map(DiscoverySelectors::selectClass);
+				return Stream.concat(methods, nestedClasses).collect(toCollection((Supplier<Set<DiscoverySelector>>) LinkedHashSet::new));
             });
             // @formatter:on
 		});

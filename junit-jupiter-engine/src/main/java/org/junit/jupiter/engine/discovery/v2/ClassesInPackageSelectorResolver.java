@@ -17,9 +17,12 @@ import java.util.function.Predicate;
 
 import org.junit.platform.engine.discovery.PackageSelector;
 
-public class ClassesInPackageSelectorResolver extends ClasspathScanningSelectorResolver<PackageSelector> {
+/**
+ * @since 5.4
+ */
+class ClassesInPackageSelectorResolver extends ClasspathScanningSelectorResolver<PackageSelector> {
 
-	public ClassesInPackageSelectorResolver(Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
+	ClassesInPackageSelectorResolver(Predicate<String> classNameFilter, Predicate<Class<?>> classFilter) {
 		super(PackageSelector.class, classNameFilter, classFilter);
 	}
 

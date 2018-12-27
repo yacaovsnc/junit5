@@ -10,18 +10,6 @@
 
 package org.junit.jupiter.engine.discovery;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
 import org.junit.jupiter.engine.descriptor.Filterable;
@@ -31,6 +19,18 @@ import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.MethodSelector;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 
 public abstract class JupiterMethodSelectorResolver implements SelectorResolver {
 
@@ -66,7 +66,7 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
 		Method method = selector.getJavaMethod();
 		if (methodPredicate.test(method)) {
 			Class<?> testClass = selector.getJavaClass();
-			return resolver.addToParentWithSelector(selectClass(testClass),
+			return resolver.addToParent(() -> selectClass(testClass),
 				parent -> Optional.of(createTestDescriptor(createUniqueId(method, parent), testClass, method))).map(
 					this::toResult);
 		}
@@ -102,7 +102,7 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
 	private Optional<TestDescriptor> resolveUniqueIdIntoTestDescriptor(UniqueId uniqueId, Context context) {
 		UniqueId.Segment lastSegment = uniqueId.getLastSegment();
 		if (segmentType.equals(lastSegment.getType())) {
-			return context.addToParentWithSelector(selectUniqueId(uniqueId.removeLastSegment()), parent -> {
+			return context.addToParent(() -> selectUniqueId(uniqueId.removeLastSegment()), parent -> {
 				String methodSpecPart = lastSegment.getValue();
 				Class<?> testClass = ((ClassTestDescriptor) parent).getTestClass();
 				// @formatter:off

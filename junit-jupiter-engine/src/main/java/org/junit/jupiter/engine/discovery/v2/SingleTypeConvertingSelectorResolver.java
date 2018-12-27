@@ -11,12 +11,18 @@
 package org.junit.jupiter.engine.discovery.v2;
 
 import static java.util.Collections.singleton;
+import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 
 import java.util.Collections;
 import java.util.Set;
 
+import org.apiguardian.api.API;
 import org.junit.platform.engine.DiscoverySelector;
 
+/**
+ * @since 5.4
+ */
+@API(status = EXPERIMENTAL, since = "5.4")
 public abstract class SingleTypeConvertingSelectorResolver<T extends DiscoverySelector>
 		extends ConvertingSelectorResolver {
 
