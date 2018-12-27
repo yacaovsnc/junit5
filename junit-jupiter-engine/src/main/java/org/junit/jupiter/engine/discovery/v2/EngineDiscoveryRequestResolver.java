@@ -10,20 +10,10 @@
 
 package org.junit.jupiter.engine.discovery.v2;
 
-import org.junit.jupiter.engine.config.JupiterConfiguration;
-import org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests;
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
-import org.junit.platform.engine.DiscoverySelector;
-import org.junit.platform.engine.EngineDiscoveryRequest;
-import org.junit.platform.engine.TestDescriptor;
-import org.junit.platform.engine.UniqueId;
-import org.junit.platform.engine.discovery.UniqueIdSelector;
-import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
+import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -38,7 +28,14 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
+import org.junit.platform.engine.DiscoverySelector;
+import org.junit.platform.engine.EngineDiscoveryRequest;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.discovery.UniqueIdSelector;
+import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 public class EngineDiscoveryRequestResolver {
 
@@ -53,47 +50,13 @@ public class EngineDiscoveryRequestResolver {
 	private final Map<UniqueId, SelectorResolver.Result> resolvedUniqueIds = new LinkedHashMap<>();
 	private final Queue<DiscoverySelector> remainingSelectors = new LinkedList<>();
 
-	public EngineDiscoveryRequestResolver(EngineDiscoveryRequest request, JupiterConfiguration configuration,
-										  TestDescriptor engineDescriptor) {
+	private EngineDiscoveryRequestResolver(EngineDiscoveryRequest request, TestDescriptor engineDescriptor,
+			List<SelectorResolver> resolvers, List<TestDescriptor.Visitor> visitors) {
 		this.request = request;
-		Predicate<String> classNameFilter = ClasspathScanningSupport.buildClassNamePredicate(request);
-		resolvers = Arrays.asList(
-				new ClassesInClasspathRootSelectorResolver(classNameFilter, new IsTestClassWithTests()),
-				new ClassesInPackageSelectorResolver(classNameFilter, new IsTestClassWithTests()),
-				new ClassesInModuleSelectorResolver(classNameFilter, new IsTestClassWithTests()),
-				new JupiterTestClassSelectorResolver(classNameFilter, configuration),
-				new JupiterTestMethodSelectorResolver(configuration),
-				new JupiterTestTemplateMethodSelectorResolver(configuration),
-				new JupiterTestFactoryMethodSelectorResolver(configuration)
-		);
-		visitors = Collections.singletonList(TestDescriptor::prune);
 		this.engineDescriptor = engineDescriptor;
-		this.context = new SelectorResolver.Context() {
-			@Override
-			public <T extends TestDescriptor> Optional<T> addToParentWithSelector(DiscoverySelector selector, Function<TestDescriptor, Optional<T>> creator) {
-				Optional<TestDescriptor> parent = resolve(selector).flatMap(SelectorResolver.Result::getTestDescriptor);
-				return createAndAdd(parent, creator);
-			}
-
-			@Override
-			public <T extends TestDescriptor> Optional<T> addToEngine(Function<TestDescriptor, Optional<T>> creator) {
-				return createAndAdd(Optional.of(engineDescriptor), creator);
-			}
-
-			private <T extends TestDescriptor> Optional<T> createAndAdd(Optional<TestDescriptor> parent, Function<TestDescriptor, Optional<T>> creator) {
-				return parent.flatMap(it -> {
-					Optional<T> descriptor = creator.apply(it);
-					if (descriptor.isPresent()) {
-						UniqueId uniqueId = descriptor.get().getUniqueId();
-						if (resolvedUniqueIds.containsKey(uniqueId)) {
-							return (Optional<T>) resolvedUniqueIds.get(uniqueId).getTestDescriptor();
-						}
-					}
-					descriptor.ifPresent(it::addChild);
-					return descriptor;
-				});
-			}
-		};
+		this.resolvers = new ArrayList<>(resolvers);
+		this.visitors = new ArrayList<>(visitors);
+		this.context = new DefaultContext();
 		resolvedUniqueIds.put(engineDescriptor.getUniqueId(), SelectorResolver.Result.of(engineDescriptor));
 	}
 
@@ -128,10 +91,12 @@ public class EngineDiscoveryRequestResolver {
 				if (result.get().isPerfectMatch()) {
 					remainingSelectors.addAll(result.get().getAdditionalSelectors());
 				}
-			} else {
+			}
+			else {
 				logUnresolvedSelector(selector, null);
 			}
-		} catch (Throwable t) {
+		}
+		catch (Throwable t) {
 			rethrowIfBlacklisted(t);
 			logUnresolvedSelector(selector, t);
 		}
@@ -157,7 +122,8 @@ public class EngineDiscoveryRequestResolver {
 		return resolve(selector, resolver -> resolver.resolveUniqueId(uniqueId, context));
 	}
 
-	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector, Function<SelectorResolver, Optional<SelectorResolver.Result>> resolutionFunction) {
+	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector,
+			Function<SelectorResolver, Optional<SelectorResolver.Result>> resolutionFunction) {
 		// @formatter:off
 		return resolvers.stream()
 				.map(resolutionFunction)
@@ -179,11 +145,95 @@ public class EngineDiscoveryRequestResolver {
 			UniqueId uniqueId = ((UniqueIdSelector) selector).getUniqueId();
 			if (uniqueId.hasPrefix(engineDescriptor.getUniqueId())) {
 				loggingConsumer = logger::warn;
-			} else {
+			}
+			else {
 				return;
 			}
 		}
 		loggingConsumer.accept(cause, () -> selector + " could not be resolved.");
 	}
 
+	private class DefaultContext implements SelectorResolver.Context {
+		@Override
+		public <T extends TestDescriptor> Optional<T> addToParentWithSelector(DiscoverySelector selector,
+				Function<TestDescriptor, Optional<T>> creator) {
+			Optional<TestDescriptor> parent = resolve(selector).flatMap(SelectorResolver.Result::getTestDescriptor);
+			return createAndAdd(parent, creator);
+		}
+
+		@Override
+		public <T extends TestDescriptor> Optional<T> addToEngine(Function<TestDescriptor, Optional<T>> creator) {
+			return createAndAdd(Optional.of(engineDescriptor), creator);
+		}
+
+		@SuppressWarnings("unchecked")
+		private <T extends TestDescriptor> Optional<T> createAndAdd(Optional<TestDescriptor> parent,
+				Function<TestDescriptor, Optional<T>> creator) {
+			return parent.flatMap(it -> {
+				Optional<T> descriptor = creator.apply(it);
+				if (descriptor.isPresent()) {
+					UniqueId uniqueId = descriptor.get().getUniqueId();
+					if (resolvedUniqueIds.containsKey(uniqueId)) {
+						return (Optional<T>) resolvedUniqueIds.get(uniqueId).getTestDescriptor();
+					}
+				}
+				descriptor.ifPresent(it::addChild);
+				return descriptor;
+			});
+		}
+	}
+
+	public static Builder builder(EngineDiscoveryRequest request, TestDescriptor engineDescriptor) {
+		return new Builder(request, engineDescriptor);
+	}
+
+	public static class Builder {
+
+		private final List<SelectorResolver> resolvers = new LinkedList<>();
+		private final List<TestDescriptor.Visitor> visitors = new LinkedList<>();
+
+		private final EngineDiscoveryRequest request;
+		private final TestDescriptor engineDescriptor;
+		private final Predicate<String> classNameFilter;
+
+		private Builder(EngineDiscoveryRequest request, TestDescriptor engineDescriptor) {
+			this.request = request;
+			this.engineDescriptor = engineDescriptor;
+			this.classNameFilter = ClasspathScanningSupport.buildClassNamePredicate(request);
+		}
+
+		public Builder addClassesInClasspathRootSelectorResolver(Predicate<Class<?>> classFilter) {
+			return addSelectorResolver(new ClassesInClasspathRootSelectorResolver(classNameFilter, classFilter));
+		}
+
+		public Builder addClassesInPackageSelectorResolver(Predicate<Class<?>> classFilter) {
+			return addSelectorResolver(new ClassesInPackageSelectorResolver(classNameFilter, classFilter));
+		}
+
+		public Builder addClassesInModuleSelectorResolver(Predicate<Class<?>> classFilter) {
+			return addSelectorResolver(new ClassesInModuleSelectorResolver(classNameFilter, classFilter));
+		}
+
+		public Builder addSelectorResolverWithClassNameFilter(Function<Predicate<String>, SelectorResolver> creator) {
+			return addSelectorResolver(creator.apply(classNameFilter));
+		}
+
+		public Builder addSelectorResolver(SelectorResolver resolver) {
+			resolvers.add(resolver);
+			return this;
+		}
+
+		public Builder addPruningTestDescriptorVisitor() {
+			return addTestDescriptorVisitor(TestDescriptor::prune);
+		}
+
+		public Builder addTestDescriptorVisitor(TestDescriptor.Visitor visitor) {
+			visitors.add(visitor);
+			return this;
+		}
+
+		public EngineDiscoveryRequestResolver build() {
+			return new EngineDiscoveryRequestResolver(request, engineDescriptor, resolvers, visitors);
+		}
+	}
 }

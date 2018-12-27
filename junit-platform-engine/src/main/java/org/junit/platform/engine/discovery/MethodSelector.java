@@ -10,6 +10,11 @@
 
 package org.junit.platform.engine.discovery;
 
+import static org.apiguardian.api.API.Status.STABLE;
+
+import java.lang.reflect.Method;
+import java.util.Objects;
+
 import org.apiguardian.api.API;
 import org.junit.platform.commons.util.ClassUtils;
 import org.junit.platform.commons.util.PreconditionViolationException;
@@ -17,11 +22,6 @@ import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.commons.util.StringUtils;
 import org.junit.platform.commons.util.ToStringBuilder;
 import org.junit.platform.engine.DiscoverySelector;
-
-import java.lang.reflect.Method;
-import java.util.Objects;
-
-import static org.apiguardian.api.API.Status.STABLE;
 
 /**
  * A {@link DiscoverySelector} that selects a {@link Method} or a combination of

@@ -10,13 +10,13 @@
 
 package org.junit.jupiter.engine.discovery;
 
-import org.junit.platform.commons.util.Preconditions;
-import org.junit.platform.commons.util.ReflectionUtils;
-
 import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.junit.platform.commons.util.Preconditions;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 /**
  * @since 5.0

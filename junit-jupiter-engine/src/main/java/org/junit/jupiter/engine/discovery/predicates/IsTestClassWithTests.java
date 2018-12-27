@@ -10,13 +10,13 @@
 
 package org.junit.jupiter.engine.discovery.predicates;
 
-import org.apiguardian.api.API;
-import org.junit.platform.commons.util.ReflectionUtils;
+import static org.apiguardian.api.API.Status.INTERNAL;
 
 import java.lang.reflect.Method;
 import java.util.function.Predicate;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
+import org.apiguardian.api.API;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 /**
  * Test if a class is a JUnit Jupiter test class containing executable tests,
