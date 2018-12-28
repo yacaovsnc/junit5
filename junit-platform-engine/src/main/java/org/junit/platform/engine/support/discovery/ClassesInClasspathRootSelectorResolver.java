@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.engine.discovery.v2;
+package org.junit.platform.engine.support.discovery;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -17,7 +17,7 @@ import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.engine.discovery.ClasspathRootSelector;
 
 /**
- * @since 5.4
+ * @since 1.4
  */
 class ClassesInClasspathRootSelectorResolver extends ClasspathScanningSelectorResolver<ClasspathRootSelector> {
 

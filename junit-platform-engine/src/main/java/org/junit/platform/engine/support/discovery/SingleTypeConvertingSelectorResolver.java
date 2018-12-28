@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.engine.discovery.v2;
+package org.junit.platform.engine.support.discovery;
 
 import static java.util.Collections.singleton;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
@@ -20,9 +20,9 @@ import org.apiguardian.api.API;
 import org.junit.platform.engine.DiscoverySelector;
 
 /**
- * @since 5.4
+ * @since 1.4
  */
-@API(status = EXPERIMENTAL, since = "5.4")
+@API(status = EXPERIMENTAL, since = "1.4")
 public abstract class SingleTypeConvertingSelectorResolver<T extends DiscoverySelector>
 		extends ConvertingSelectorResolver {
 

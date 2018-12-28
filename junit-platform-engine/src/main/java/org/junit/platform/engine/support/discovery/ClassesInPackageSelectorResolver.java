@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.engine.discovery.v2;
+package org.junit.platform.engine.support.discovery;
 
 import static org.junit.platform.commons.support.ReflectionSupport.findAllClassesInPackage;
 
@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import org.junit.platform.engine.discovery.PackageSelector;
 
 /**
- * @since 5.4
+ * @since 1.4
  */
 class ClassesInPackageSelectorResolver extends ClasspathScanningSelectorResolver<PackageSelector> {
 

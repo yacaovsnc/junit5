@@ -15,9 +15,9 @@ import static org.apiguardian.api.API.Status.INTERNAL;
 import org.apiguardian.api.API;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests;
-import org.junit.jupiter.engine.discovery.v2.EngineDiscoveryRequestResolver;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.support.discovery.EngineDiscoveryRequestResolver;
 
 /**
  * {@code DiscoverySelectorResolver} resolves {@link TestDescriptor TestDescriptors}

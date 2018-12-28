@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.engine.discovery.v2;
+package org.junit.platform.engine.support.discovery;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -29,9 +29,9 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 
 /**
- * @since 5.4
+ * @since 1.4
  */
-@API(status = EXPERIMENTAL, since = "5.4")
+@API(status = EXPERIMENTAL, since = "1.4")
 public interface SelectorResolver {
 
 	Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes();
@@ -41,9 +41,9 @@ public interface SelectorResolver {
 	Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context);
 
 	/**
-	 * @since 5.4
+	 * @since 1.4
 	 */
-	@API(status = EXPERIMENTAL, since = "5.4")
+	@API(status = EXPERIMENTAL, since = "1.4")
 	interface Context {
 		<T extends TestDescriptor> Optional<T> addToParent(Function<TestDescriptor, Optional<T>> creator);
 
@@ -52,9 +52,9 @@ public interface SelectorResolver {
 	}
 
 	/**
-	 * @since 5.4
+	 * @since 1.4
 	 */
-	@API(status = EXPERIMENTAL, since = "5.4")
+	@API(status = EXPERIMENTAL, since = "1.4")
 	class Result {
 		private final Set<Match> matches;
 		private final Set<? extends DiscoverySelector> additionalSelectors;
@@ -105,9 +105,9 @@ public interface SelectorResolver {
 	}
 
 	/**
-	 * @since 5.4
+	 * @since 1.4
 	 */
-	@API(status = EXPERIMENTAL, since = "5.4")
+	@API(status = EXPERIMENTAL, since = "1.4")
 	class Match {
 		private final TestDescriptor testDescriptor;
 		private final Supplier<Set<? extends DiscoverySelector>> childSelectorsSupplier;

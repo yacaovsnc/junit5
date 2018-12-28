@@ -62,7 +62,6 @@ import org.junit.jupiter.engine.descriptor.TestTemplateInvocationTestDescriptor;
 import org.junit.jupiter.engine.descriptor.subpackage.Class1WithTestCases;
 import org.junit.jupiter.engine.descriptor.subpackage.Class2WithTestCases;
 import org.junit.jupiter.engine.descriptor.subpackage.ClassWithStaticInnerTestCases;
-import org.junit.jupiter.engine.discovery.v2.EngineDiscoveryRequestResolver;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.logging.LogRecordListener;
 import org.junit.platform.commons.util.PreconditionViolationException;
@@ -74,6 +73,7 @@ import org.junit.platform.engine.discovery.ClasspathRootSelector;
 import org.junit.platform.engine.discovery.MethodSelector;
 import org.junit.platform.engine.discovery.PackageSelector;
 import org.junit.platform.engine.discovery.UniqueIdSelector;
+import org.junit.platform.engine.support.discovery.EngineDiscoveryRequestResolver;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 
 /**

@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.engine.discovery.v2;
+package org.junit.platform.engine.support.discovery;
 
 import static java.util.stream.Collectors.joining;
 import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
@@ -32,8 +32,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.engine.discovery.v2.SelectorResolver.Match;
-import org.junit.jupiter.engine.discovery.v2.SelectorResolver.Result;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.logging.Logger;
 import org.junit.platform.commons.logging.LoggerFactory;
@@ -42,6 +40,8 @@ import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.UniqueIdSelector;
+import org.junit.platform.engine.support.discovery.SelectorResolver.Match;
+import org.junit.platform.engine.support.discovery.SelectorResolver.Result;
 import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 public class EngineDiscoveryRequestResolver {

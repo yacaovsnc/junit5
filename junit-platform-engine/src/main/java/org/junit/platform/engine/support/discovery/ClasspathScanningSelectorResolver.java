@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.engine.discovery.v2;
+package org.junit.platform.engine.support.discovery;
 
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
@@ -23,7 +23,7 @@ import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 
 /**
- * @since 5.4
+ * @since 1.4
  */
 abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelector>
 		extends SingleTypeConvertingSelectorResolver<T> {
