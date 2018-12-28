@@ -36,15 +36,11 @@ public class DiscoverySelectorResolver {
 	public void resolveSelectors(EngineDiscoveryRequest request, JupiterConfiguration configuration,
 			TestDescriptor engineDescriptor) {
 		// @formatter:off
-		EngineDiscoveryRequestResolver.builder(request, engineDescriptor)
-				.addClassesInClasspathRootSelectorResolver(isTestClassWithTests)
-				.addClassesInModuleSelectorResolver(isTestClassWithTests)
-				.addClassesInPackageSelectorResolver(isTestClassWithTests)
+		EngineDiscoveryRequestResolver.configure(request, engineDescriptor)
+				.withDefaultsForClassBasedTestEngines(isTestClassWithTests)
 				.addSelectorResolverWithClassNameFilter(filter -> new ClassSelectorResolver(filter, configuration))
 				.addSelectorResolver(new MethodSelectorResolver(configuration))
-				.addPruningTestDescriptorVisitor()
 				.addTestDescriptorVisitor(new MethodOrderingVisitor(configuration))
-				.build()
 				.resolve();
 		// @formatter:on
 	}

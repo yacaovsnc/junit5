@@ -14,9 +14,11 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 
@@ -32,8 +34,8 @@ abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelector>
 	ClasspathScanningSelectorResolver(Class<T> selectorClass, Predicate<String> classNameFilter,
 			Predicate<Class<?>> classFilter) {
 		super(selectorClass);
-		this.classNameFilter = classNameFilter;
-		this.classFilter = classFilter;
+		this.classNameFilter = Preconditions.notNull(classNameFilter, "classNameFilter must not be null");
+		this.classFilter = Preconditions.notNull(classFilter, "classFilter must not be null");
 	}
 
 	@Override
@@ -47,4 +49,18 @@ abstract class ClasspathScanningSelectorResolver<T extends DiscoverySelector>
 
 	protected abstract List<Class<?>> findClasses(T selector);
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ClasspathScanningSelectorResolver<?> that = (ClasspathScanningSelectorResolver<?>) o;
+		return classNameFilter.equals(that.classNameFilter) && classFilter.equals(that.classFilter);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(classNameFilter, classFilter);
+	}
 }

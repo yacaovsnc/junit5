@@ -59,7 +59,7 @@ public class EngineDiscoveryRequestResolver {
 	private final Map<DiscoverySelector, SelectorResolver.Context> contextBySelector = new HashMap<>();
 
 	private EngineDiscoveryRequestResolver(EngineDiscoveryRequest request, TestDescriptor engineDescriptor,
-			List<SelectorResolver> resolvers, List<TestDescriptor.Visitor> visitors) {
+			Collection<SelectorResolver> resolvers, Collection<TestDescriptor.Visitor> visitors) {
 		this.request = request;
 		this.engineDescriptor = engineDescriptor;
 		this.resolvers = new ArrayList<>(resolvers);
@@ -68,7 +68,7 @@ public class EngineDiscoveryRequestResolver {
 		resolvedUniqueIds.put(engineDescriptor.getUniqueId(), Match.of(engineDescriptor));
 	}
 
-	public void resolve() {
+	private void resolve() {
 		// @formatter:off
 		getSupportedSelectorTypes().stream()
 				.map(request::getSelectorsByType)
@@ -234,14 +234,16 @@ public class EngineDiscoveryRequestResolver {
 		}
 	}
 
-	public static Builder builder(EngineDiscoveryRequest request, TestDescriptor engineDescriptor) {
+	public static Builder configure(EngineDiscoveryRequest request, TestDescriptor engineDescriptor) {
 		return new Builder(request, engineDescriptor);
 	}
 
 	public static class Builder {
 
-		private final List<SelectorResolver> resolvers = new LinkedList<>();
-		private final List<TestDescriptor.Visitor> visitors = new LinkedList<>();
+		private static final TestDescriptor.Visitor PRUNING_VISITOR = TestDescriptor::prune;
+
+		private final Set<SelectorResolver> resolvers = new LinkedHashSet<>();
+		private final Set<TestDescriptor.Visitor> visitors = new LinkedHashSet<>();
 
 		private final EngineDiscoveryRequest request;
 		private final TestDescriptor engineDescriptor;
@@ -251,6 +253,13 @@ public class EngineDiscoveryRequestResolver {
 			this.request = request;
 			this.engineDescriptor = engineDescriptor;
 			this.classNameFilter = ClasspathScanningSupport.buildClassNamePredicate(request);
+		}
+
+		public Builder withDefaultsForClassBasedTestEngines(Predicate<Class<?>> classFilter) {
+			return addClassesInClasspathRootSelectorResolver(classFilter)//
+					.addClassesInModuleSelectorResolver(classFilter)//
+					.addClassesInPackageSelectorResolver(classFilter)//
+					.addPruningTestDescriptorVisitor();
 		}
 
 		public Builder addClassesInClasspathRootSelectorResolver(Predicate<Class<?>> classFilter) {
@@ -275,7 +284,7 @@ public class EngineDiscoveryRequestResolver {
 		}
 
 		public Builder addPruningTestDescriptorVisitor() {
-			return addTestDescriptorVisitor(TestDescriptor::prune);
+			return addTestDescriptorVisitor(PRUNING_VISITOR);
 		}
 
 		public Builder addTestDescriptorVisitor(TestDescriptor.Visitor visitor) {
@@ -283,8 +292,8 @@ public class EngineDiscoveryRequestResolver {
 			return this;
 		}
 
-		public EngineDiscoveryRequestResolver build() {
-			return new EngineDiscoveryRequestResolver(request, engineDescriptor, resolvers, visitors);
+		public void resolve() {
+			new EngineDiscoveryRequestResolver(request, engineDescriptor, resolvers, visitors).resolve();
 		}
 	}
 }
