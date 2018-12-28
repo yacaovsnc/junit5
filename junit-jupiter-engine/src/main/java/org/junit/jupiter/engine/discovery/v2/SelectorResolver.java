@@ -77,6 +77,7 @@ public interface SelectorResolver {
 		}
 
 		private Result(Set<Match> matches, Set<? extends DiscoverySelector> additionalSelectors) {
+			// TODO validate not both empty
 			this.matches = matches;
 			this.additionalSelectors = additionalSelectors;
 		}

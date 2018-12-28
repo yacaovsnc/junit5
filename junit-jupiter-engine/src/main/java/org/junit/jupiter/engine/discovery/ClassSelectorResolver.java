@@ -42,7 +42,7 @@ import org.junit.platform.engine.discovery.ClassSelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.discovery.MethodSelector;
 
-public class JupiterTestClassSelectorResolver implements SelectorResolver {
+class ClassSelectorResolver implements SelectorResolver {
 
 	private static final IsTestClassWithTests isTestClassWithTests = new IsTestClassWithTests();
 	private static final IsNestedTestClass isNestedTestClass = new IsNestedTestClass();
@@ -50,7 +50,7 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
 	private final Predicate<String> classNameFilter;
 	private final JupiterConfiguration configuration;
 
-	public JupiterTestClassSelectorResolver(Predicate<String> classNameFilter, JupiterConfiguration configuration) {
+	ClassSelectorResolver(Predicate<String> classNameFilter, JupiterConfiguration configuration) {
 		this.classNameFilter = classNameFilter;
 		this.configuration = configuration;
 	}
