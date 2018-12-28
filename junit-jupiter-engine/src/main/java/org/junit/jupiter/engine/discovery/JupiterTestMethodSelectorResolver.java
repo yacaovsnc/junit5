@@ -10,13 +10,13 @@
 
 package org.junit.jupiter.engine.discovery;
 
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor;
 import org.junit.jupiter.engine.discovery.predicates.IsTestMethod;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
-
-import java.lang.reflect.Method;
 
 public class JupiterTestMethodSelectorResolver extends JupiterMethodSelectorResolver {
 

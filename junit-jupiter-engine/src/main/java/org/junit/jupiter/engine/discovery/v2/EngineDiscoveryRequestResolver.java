@@ -10,14 +10,9 @@
 
 package org.junit.jupiter.engine.discovery.v2;
 
-import org.junit.platform.commons.logging.Logger;
-import org.junit.platform.commons.logging.LoggerFactory;
-import org.junit.platform.engine.DiscoverySelector;
-import org.junit.platform.engine.EngineDiscoveryRequest;
-import org.junit.platform.engine.TestDescriptor;
-import org.junit.platform.engine.UniqueId;
-import org.junit.platform.engine.discovery.UniqueIdSelector;
-import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
+import static java.util.stream.Collectors.joining;
+import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
+import static org.junit.platform.commons.util.CollectionUtils.getOnlyElement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -36,7 +32,17 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.junit.platform.commons.util.BlacklistedExceptions.rethrowIfBlacklisted;
+import org.junit.jupiter.engine.discovery.v2.SelectorResolver.Match;
+import org.junit.jupiter.engine.discovery.v2.SelectorResolver.Result;
+import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
+import org.junit.platform.engine.DiscoverySelector;
+import org.junit.platform.engine.EngineDiscoveryRequest;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.UniqueId;
+import org.junit.platform.engine.discovery.UniqueIdSelector;
+import org.junit.platform.engine.support.filter.ClasspathScanningSupport;
 
 public class EngineDiscoveryRequestResolver {
 
@@ -47,8 +53,8 @@ public class EngineDiscoveryRequestResolver {
 	private final List<SelectorResolver> resolvers;
 	private final List<TestDescriptor.Visitor> visitors;
 	private final TestDescriptor engineDescriptor;
-	private final Map<DiscoverySelector, SelectorResolver.Result> resolvedSelectors = new LinkedHashMap<>();
-	private final Map<UniqueId, SelectorResolver.Result> resolvedUniqueIds = new LinkedHashMap<>();
+	private final Map<DiscoverySelector, Result> resolvedSelectors = new LinkedHashMap<>();
+	private final Map<UniqueId, Match> resolvedUniqueIds = new LinkedHashMap<>();
 	private final Queue<DiscoverySelector> remainingSelectors = new LinkedList<>();
 	private final Map<DiscoverySelector, SelectorResolver.Context> contextBySelector = new HashMap<>();
 
@@ -59,7 +65,7 @@ public class EngineDiscoveryRequestResolver {
 		this.resolvers = new ArrayList<>(resolvers);
 		this.visitors = new ArrayList<>(visitors);
 		this.defaultContext = new DefaultContext(null);
-		resolvedUniqueIds.put(engineDescriptor.getUniqueId(), SelectorResolver.Result.of(engineDescriptor));
+		resolvedUniqueIds.put(engineDescriptor.getUniqueId(), Match.of(engineDescriptor));
 	}
 
 	public void resolve() {
@@ -88,7 +94,7 @@ public class EngineDiscoveryRequestResolver {
 
 	private void resolveCompletely(DiscoverySelector selector) {
 		try {
-			Optional<SelectorResolver.Result> result = resolve(selector);
+			Optional<Result> result = resolve(selector);
 			if (result.isPresent()) {
 				enqueueAdditionalSelectors(result.get());
 			}
@@ -102,17 +108,22 @@ public class EngineDiscoveryRequestResolver {
 		}
 	}
 
-	private void enqueueAdditionalSelectors(SelectorResolver.Result result) {
+	private void enqueueAdditionalSelectors(Result result) {
+		Set<? extends DiscoverySelector> additionalSelectors = result.getAdditionalSelectors();
+		remainingSelectors.addAll(additionalSelectors);
 		if (result.isPerfectMatch()) {
-			Set<? extends DiscoverySelector> additionalSelectors = result.getAdditionalSelectors();
-			remainingSelectors.addAll(additionalSelectors);
-			result.getTestDescriptor().map(DefaultContext::new)//
-					.ifPresent(
-						context -> additionalSelectors.forEach(selector -> contextBySelector.put(selector, context)));
+			result.getMatches().forEach(match -> {
+				Set<? extends DiscoverySelector> childSelectors = match.getChildSelectors();
+				if (!childSelectors.isEmpty()) {
+					remainingSelectors.addAll(childSelectors);
+					DefaultContext context = new DefaultContext(match.getTestDescriptor());
+					childSelectors.forEach(selector -> contextBySelector.put(selector, context));
+				}
+			});
 		}
 	}
 
-	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector) {
+	private Optional<Result> resolve(DiscoverySelector selector) {
 		if (resolvedSelectors.containsKey(selector)) {
 			return Optional.of(resolvedSelectors.get(selector));
 		}
@@ -122,9 +133,9 @@ public class EngineDiscoveryRequestResolver {
 		return resolve(selector, resolver -> resolver.resolveSelector(selector, getContext(selector)));
 	}
 
-	private Optional<SelectorResolver.Result> resolveUniqueId(DiscoverySelector selector, UniqueId uniqueId) {
+	private Optional<Result> resolveUniqueId(DiscoverySelector selector, UniqueId uniqueId) {
 		if (resolvedUniqueIds.containsKey(uniqueId)) {
-			return Optional.of(resolvedUniqueIds.get(uniqueId));
+			return Optional.of(Result.of(resolvedUniqueIds.get(uniqueId)));
 		}
 		if (!uniqueId.hasPrefix(engineDescriptor.getUniqueId())) {
 			return Optional.empty();
@@ -136,8 +147,8 @@ public class EngineDiscoveryRequestResolver {
 		return contextBySelector.getOrDefault(selector, defaultContext);
 	}
 
-	private Optional<SelectorResolver.Result> resolve(DiscoverySelector selector,
-			Function<SelectorResolver, Optional<SelectorResolver.Result>> resolutionFunction) {
+	private Optional<Result> resolve(DiscoverySelector selector,
+			Function<SelectorResolver, Optional<Result>> resolutionFunction) {
 		// @formatter:off
 		return resolvers.stream()
 				.map(resolutionFunction)
@@ -147,8 +158,8 @@ public class EngineDiscoveryRequestResolver {
 				.map(result -> {
 					contextBySelector.remove(selector);
 					resolvedSelectors.put(selector, result);
-					result.getTestDescriptor()
-							.ifPresent(testDescriptor -> resolvedUniqueIds.put(testDescriptor.getUniqueId(), result.withPerfectMatch()));
+					result.getMatches()
+							.forEach(match -> resolvedUniqueIds.put(match.getTestDescriptor().getUniqueId(), match));
 					return result;
 				});
 		// @formatter:on
@@ -189,8 +200,23 @@ public class EngineDiscoveryRequestResolver {
 			if (parent != null) {
 				return createAndAdd(parent, creator);
 			}
-			return resolve(parentSelectorSupplier.get()).flatMap(SelectorResolver.Result::getTestDescriptor)//
-					.flatMap(parent -> createAndAdd(parent, creator));
+			return resolve(parentSelectorSupplier.get())//
+					.map(Result::getMatches).flatMap(matches -> {
+						if (matches.size() > 1) {
+					// @formatter:off
+							String stringRepresentation = matches.stream()
+									.map(Match::getTestDescriptor)
+									.map(Objects::toString)
+									.collect(joining(", "));
+							// @formatter:on
+							throw new JUnitException(
+								"Cannot add descriptor to multiple parents: " + stringRepresentation);
+						}
+						if (matches.size() == 1) {
+							return Optional.of(getOnlyElement(matches).getTestDescriptor());
+						}
+						return Optional.empty();
+					}).flatMap(parent -> createAndAdd(parent, creator));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -200,7 +226,7 @@ public class EngineDiscoveryRequestResolver {
 			if (child.isPresent()) {
 				UniqueId uniqueId = child.get().getUniqueId();
 				if (resolvedUniqueIds.containsKey(uniqueId)) {
-					return (Optional<T>) resolvedUniqueIds.get(uniqueId).getTestDescriptor();
+					return Optional.of((T) resolvedUniqueIds.get(uniqueId).getTestDescriptor());
 				}
 			}
 			child.ifPresent(parent::addChild);

@@ -31,7 +31,7 @@ public abstract class ConvertingSelectorResolver implements SelectorResolver {
 		if (selectors.isEmpty()) {
 			return Optional.empty();
 		}
-		return Optional.of(Result.of(() -> selectors));
+		return Optional.of(Result.of(selectors));
 	}
 
 	protected abstract Set<? extends DiscoverySelector> convert(DiscoverySelector selector);

@@ -10,9 +10,14 @@
 
 package org.junit.jupiter.engine.discovery.v2;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static java.util.Collections.unmodifiableSet;
 import static org.apiguardian.api.API.Status.EXPERIMENTAL;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -51,52 +56,82 @@ public interface SelectorResolver {
 	 */
 	@API(status = EXPERIMENTAL, since = "5.4")
 	class Result {
-		private final TestDescriptor testDescriptor;
-		private final Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier;
+		private final Set<Match> matches;
+		private final Set<? extends DiscoverySelector> additionalSelectors;
 		private boolean perfectMatch = true;
 
-		public static Result of(TestDescriptor testDescriptor) {
-			return new Result(testDescriptor, Collections::emptySet);
+		public static Result of(Match match) {
+			return new Result(singleton(match), emptySet());
 		}
 
-		public static Result of(Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier) {
-			return new Result(null, additionalSelectorsSupplier);
+		public static Result of(Collection<Match> matches) {
+			return of(matches, emptySet());
 		}
 
-		public static Result of(TestDescriptor testDescriptor,
-				Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier) {
-			return new Result(testDescriptor, additionalSelectorsSupplier);
+		public static Result of(Set<? extends DiscoverySelector> additionalSelectors) {
+			return new Result(emptySet(), additionalSelectors);
 		}
 
-		private Result(TestDescriptor testDescriptor,
-				Supplier<Set<? extends DiscoverySelector>> additionalSelectorsSupplier) {
-			this.testDescriptor = testDescriptor;
-			this.additionalSelectorsSupplier = additionalSelectorsSupplier;
+		public static Result of(Collection<Match> matches, Set<? extends DiscoverySelector> additionalSelectors) {
+			return new Result(unmodifiableSet(new LinkedHashSet<>(matches)), additionalSelectors);
+		}
+
+		private Result(Set<Match> matches, Set<? extends DiscoverySelector> additionalSelectors) {
+			this.matches = matches;
+			this.additionalSelectors = additionalSelectors;
 		}
 
 		public boolean isPerfectMatch() {
 			return perfectMatch;
 		}
 
-		public Result withPerfectMatch() {
-			return withPerfectMatch(true);
-		}
-
 		public Result withPerfectMatch(boolean perfectMatch) {
 			if (this.perfectMatch == perfectMatch) {
 				return this;
 			}
-			Result result = new Result(testDescriptor, additionalSelectorsSupplier);
+			Result result = new Result(matches, additionalSelectors);
 			result.perfectMatch = perfectMatch;
 			return result;
 		}
 
-		public Optional<TestDescriptor> getTestDescriptor() {
-			return Optional.ofNullable(testDescriptor);
+		public Set<Match> getMatches() {
+			return matches;
 		}
 
-		Set<? extends DiscoverySelector> getAdditionalSelectors() {
-			return additionalSelectorsSupplier.get();
+		public Set<? extends DiscoverySelector> getAdditionalSelectors() {
+			return additionalSelectors;
+		}
+	}
+
+	/**
+	 * @since 5.4
+	 */
+	@API(status = EXPERIMENTAL, since = "5.4")
+	class Match {
+		private final TestDescriptor testDescriptor;
+		private final Supplier<Set<? extends DiscoverySelector>> childSelectorsSupplier;
+
+		public static Match of(TestDescriptor testDescriptor) {
+			return new Match(testDescriptor, Collections::emptySet);
+		}
+
+		public static Match of(TestDescriptor testDescriptor,
+				Supplier<Set<? extends DiscoverySelector>> childSelectorsSupplier) {
+			return new Match(testDescriptor, childSelectorsSupplier);
+		}
+
+		private Match(TestDescriptor testDescriptor,
+				Supplier<Set<? extends DiscoverySelector>> childSelectorsSupplier) {
+			this.testDescriptor = testDescriptor;
+			this.childSelectorsSupplier = childSelectorsSupplier;
+		}
+
+		public TestDescriptor getTestDescriptor() {
+			return testDescriptor;
+		}
+
+		public Set<? extends DiscoverySelector> getChildSelectors() {
+			return childSelectorsSupplier.get();
 		}
 	}
 

@@ -120,13 +120,13 @@ public class JupiterTestClassSelectorResolver implements SelectorResolver {
 		return testDescriptor.map(it -> {
 			Class<?> testClass = it.getTestClass();
 			// @formatter:off
-            return Result.of(it, () -> {
+            return Result.of(Match.of(it, () -> {
                 Stream<MethodSelector> methods = findMethods(testClass, isTestOrTestFactoryOrTestTemplateMethod).stream()
                         .map(method -> selectMethod(testClass, method));
 				Stream<ClassSelector> nestedClasses = findNestedClasses(testClass, isNestedTestClass).stream()
 						.map(DiscoverySelectors::selectClass);
 				return Stream.concat(methods, nestedClasses).collect(toCollection((Supplier<Set<DiscoverySelector>>) LinkedHashSet::new));
-            });
+            }));
             // @formatter:on
 		});
 	}

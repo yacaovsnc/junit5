@@ -10,6 +10,18 @@
 
 package org.junit.jupiter.engine.discovery;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ClassTestDescriptor;
 import org.junit.jupiter.engine.descriptor.Filterable;
@@ -19,18 +31,6 @@ import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.MethodSelector;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
 
 public abstract class JupiterMethodSelectorResolver implements SelectorResolver {
 
@@ -91,12 +91,12 @@ public abstract class JupiterMethodSelectorResolver implements SelectorResolver 
 	}
 
 	private Result toResult(TestDescriptor testDescriptor) {
-		return Result.of(testDescriptor, () -> {
+		return Result.of(Match.of(testDescriptor, () -> {
 			if (testDescriptor instanceof Filterable) {
 				((Filterable) testDescriptor).getDynamicDescendantFilter().allowAll();
 			}
 			return emptySet();
-		});
+		}));
 	}
 
 	private Optional<TestDescriptor> resolveUniqueIdIntoTestDescriptor(UniqueId uniqueId, Context context) {
