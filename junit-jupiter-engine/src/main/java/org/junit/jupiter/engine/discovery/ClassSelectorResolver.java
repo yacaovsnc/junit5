@@ -93,6 +93,7 @@ class ClassSelectorResolver implements SelectorResolver {
 			return toResult(context.addToParent(() -> selectUniqueId(uniqueId.removeLastSegment()), parent -> {
 				if (parent instanceof ClassTestDescriptor) {
 					Class<?> parentTestClass = ((ClassTestDescriptor) parent).getTestClass();
+					// TODO add test for resolving unique id of inherited nested test class
 					return ReflectionUtils.findNestedClasses(parentTestClass,
 						isNestedTestClass.and(
 							where(Class::getSimpleName, isEqual(simpleClassName)))).stream().findFirst().flatMap(
