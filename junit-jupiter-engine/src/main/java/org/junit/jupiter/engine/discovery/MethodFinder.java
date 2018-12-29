@@ -21,12 +21,12 @@ import org.junit.platform.commons.util.ReflectionUtils;
 /**
  * @since 5.0
  */
-public class MethodFinder {
+class MethodFinder {
 
 	// Pattern: methodName(comma-separated list of parameter type names)
 	private static final Pattern METHOD_PATTERN = Pattern.compile("(.+)\\((.*)\\)");
 
-	public Optional<Method> findMethod(String methodSpecPart, Class<?> clazz) {
+	Optional<Method> findMethod(String methodSpecPart, Class<?> clazz) {
 		Matcher matcher = METHOD_PATTERN.matcher(methodSpecPart);
 
 		Preconditions.condition(matcher.matches(),
