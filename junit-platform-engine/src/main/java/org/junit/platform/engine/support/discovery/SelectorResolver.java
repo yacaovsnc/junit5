@@ -45,6 +45,8 @@ public interface SelectorResolver {
 	 */
 	@API(status = EXPERIMENTAL, since = "1.4")
 	interface Context {
+		Optional<TestDescriptor> resolve(DiscoverySelector selector);
+
 		<T extends TestDescriptor> Optional<T> addToParent(Function<TestDescriptor, Optional<T>> creator);
 
 		<T extends TestDescriptor> Optional<T> addToParent(Supplier<DiscoverySelector> parentSelectorSupplier,

@@ -41,6 +41,7 @@ public class DiscoverySelectorResolver {
 				.addSelectorResolverWithClassNameFilter(filter -> new ClassSelectorResolver(filter, configuration))
 				.addSelectorResolver(new MethodSelectorResolver(configuration))
 				.addTestDescriptorVisitor(new MethodOrderingVisitor(configuration))
+				.addTestDescriptorVisitor(TestDescriptor::prune)
 				.resolve();
 		// @formatter:on
 	}

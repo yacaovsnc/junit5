@@ -10,33 +10,87 @@
 
 package org.junit.vintage.engine.discovery;
 
-import static org.junit.vintage.engine.discovery.RunnerTestDescriptorAwareFilter.adapter;
+import static java.util.Collections.singleton;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId;
+import static org.junit.vintage.engine.descriptor.VintageTestDescriptor.SEGMENT_TYPE_RUNNER;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
-import org.junit.platform.commons.util.ClassFilter;
-import org.junit.platform.engine.EngineDiscoveryRequest;
+import org.junit.platform.engine.DiscoverySelector;
+import org.junit.platform.engine.TestDescriptor;
+import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.MethodSelector;
+import org.junit.platform.engine.support.discovery.SelectorResolver;
 import org.junit.runner.Description;
 import org.junit.runner.manipulation.Filter;
+import org.junit.vintage.engine.descriptor.RunnerTestDescriptor;
 
 /**
  * @since 4.12
  */
-class MethodSelectorResolver implements DiscoverySelectorResolver {
+class MethodSelectorResolver implements SelectorResolver {
 
 	@Override
-	public void resolve(EngineDiscoveryRequest request, ClassFilter classFilter, TestClassCollector collector) {
-		request.getSelectorsByType(MethodSelector.class).forEach(selector -> resolve(selector, classFilter, collector));
+	public Set<Class<? extends DiscoverySelector>> getSupportedSelectorTypes() {
+		return singleton(MethodSelector.class);
 	}
 
-	private void resolve(MethodSelector selector, ClassFilter classFilter, TestClassCollector collector) {
-		Class<?> testClass = selector.getJavaClass();
-		if (classFilter.test(testClass)) {
-			Method testMethod = selector.getJavaMethod();
-			Description methodDescription = Description.createTestDescription(testClass, testMethod.getName());
-			collector.addFiltered(testClass, adapter(matchMethodDescription(methodDescription)));
+	@Override
+	public Optional<Result> resolveSelector(DiscoverySelector selector, Context context) {
+		if (selector instanceof MethodSelector) {
+			return resolveMethodSelector((MethodSelector) selector, context);
 		}
+		return Optional.empty();
+	}
+
+	private Optional<Result> resolveMethodSelector(MethodSelector methodSelector, Context context) {
+		Class<?> testClass = methodSelector.getJavaClass();
+		return resolveParentAndAddFilter(context, selectClass(testClass), parent -> toMethodFilter(methodSelector));
+	}
+
+	@Override
+	public Optional<Result> resolveUniqueId(UniqueId uniqueId, Context context) {
+		for (UniqueId current = uniqueId; !current.getSegments().isEmpty(); current = current.removeLastSegment()) {
+			if (SEGMENT_TYPE_RUNNER.equals(current.getLastSegment().getType())) {
+				return resolveParentAndAddFilter(context, selectUniqueId(current),
+					parent -> toUniqueIdFilter(parent, uniqueId));
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional<Result> resolveParentAndAddFilter(Context context, DiscoverySelector selector,
+			Function<RunnerTestDescriptor, Filter> filterCreator) {
+		return context.resolve(selector).flatMap(parent -> addFilter(parent, filterCreator)).map(this::toResult);
+	}
+
+	private Optional<RunnerTestDescriptor> addFilter(TestDescriptor parent,
+			Function<RunnerTestDescriptor, Filter> filterCreator) {
+		if (parent instanceof RunnerTestDescriptor) {
+			RunnerTestDescriptor runnerTestDescriptor = (RunnerTestDescriptor) parent;
+			runnerTestDescriptor.getFilters().ifPresent(
+				filters -> filters.add(filterCreator.apply(runnerTestDescriptor)));
+			return Optional.of(runnerTestDescriptor);
+		}
+		return Optional.empty();
+	}
+
+	private Result toResult(RunnerTestDescriptor parent) {
+		return Result.of(Match.of(parent)).withPerfectMatch(false);
+	}
+
+	private Filter toMethodFilter(MethodSelector methodSelector) {
+		Class<?> testClass = methodSelector.getJavaClass();
+		Method testMethod = methodSelector.getJavaMethod();
+		return matchMethodDescription(Description.createTestDescription(testClass, testMethod.getName()));
+	}
+
+	private Filter toUniqueIdFilter(RunnerTestDescriptor runnerTestDescriptor, UniqueId uniqueId) {
+		return new UniqueIdFilter(runnerTestDescriptor, uniqueId);
 	}
 
 	/**

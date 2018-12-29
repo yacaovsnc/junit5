@@ -200,23 +200,29 @@ public class EngineDiscoveryRequestResolver {
 			if (parent != null) {
 				return createAndAdd(parent, creator);
 			}
-			return resolve(parentSelectorSupplier.get())//
-					.map(Result::getMatches).flatMap(matches -> {
+			return resolve(parentSelectorSupplier.get()).flatMap(parent -> createAndAdd(parent, creator));
+		}
+
+		@Override
+		public Optional<TestDescriptor> resolve(DiscoverySelector selector) {
+			// @formatter:off
+			return EngineDiscoveryRequestResolver.this.resolve(selector)
+					.map(Result::getMatches)
+					.flatMap(matches -> {
 						if (matches.size() > 1) {
-					// @formatter:off
 							String stringRepresentation = matches.stream()
 									.map(Match::getTestDescriptor)
 									.map(Objects::toString)
 									.collect(joining(", "));
-							// @formatter:on
 							throw new JUnitException(
-								"Cannot add descriptor to multiple parents: " + stringRepresentation);
+								"Selector " + selector + " did not yield unique test descriptor: " + stringRepresentation);
 						}
 						if (matches.size() == 1) {
 							return Optional.of(getOnlyElement(matches).getTestDescriptor());
 						}
 						return Optional.empty();
-					}).flatMap(parent -> createAndAdd(parent, creator));
+					});
+			// @formatter:on
 		}
 
 		@SuppressWarnings("unchecked")
@@ -240,8 +246,6 @@ public class EngineDiscoveryRequestResolver {
 
 	public static class Builder {
 
-		private static final TestDescriptor.Visitor PRUNING_VISITOR = TestDescriptor::prune;
-
 		private final Set<SelectorResolver> resolvers = new LinkedHashSet<>();
 		private final Set<TestDescriptor.Visitor> visitors = new LinkedHashSet<>();
 
@@ -258,8 +262,7 @@ public class EngineDiscoveryRequestResolver {
 		public Builder withDefaultsForClassBasedTestEngines(Predicate<Class<?>> classFilter) {
 			return addClassesInClasspathRootSelectorResolver(classFilter)//
 					.addClassesInModuleSelectorResolver(classFilter)//
-					.addClassesInPackageSelectorResolver(classFilter)//
-					.addPruningTestDescriptorVisitor();
+					.addClassesInPackageSelectorResolver(classFilter);
 		}
 
 		public Builder addClassesInClasspathRootSelectorResolver(Predicate<Class<?>> classFilter) {
@@ -281,10 +284,6 @@ public class EngineDiscoveryRequestResolver {
 		public Builder addSelectorResolver(SelectorResolver resolver) {
 			resolvers.add(resolver);
 			return this;
-		}
-
-		public Builder addPruningTestDescriptorVisitor() {
-			return addTestDescriptorVisitor(PRUNING_VISITOR);
 		}
 
 		public Builder addTestDescriptorVisitor(TestDescriptor.Visitor visitor) {
