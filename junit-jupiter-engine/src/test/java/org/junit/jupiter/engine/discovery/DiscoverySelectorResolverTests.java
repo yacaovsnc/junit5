@@ -81,9 +81,8 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
  */
 class DiscoverySelectorResolverTests {
 
-	private final JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(engineId(), null);
-	private final DiscoverySelectorResolver resolver = new DiscoverySelectorResolver();
 	private final JupiterConfiguration configuration = mock(JupiterConfiguration.class);
+	private final JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(engineId(), configuration);
 
 	@Test
 	void nonTestClassResolution() {
@@ -744,7 +743,7 @@ class DiscoverySelectorResolverTests {
 	}
 
 	private void resolve(LauncherDiscoveryRequestBuilder builder) {
-		new DiscoverySelectorResolver().resolveSelectors(builder.build(), configuration, engineDescriptor);
+		new DiscoverySelectorResolver().resolveSelectors(builder.build(), engineDescriptor);
 	}
 
 	private TestDescriptor descriptorByUniqueId(UniqueId uniqueId) {

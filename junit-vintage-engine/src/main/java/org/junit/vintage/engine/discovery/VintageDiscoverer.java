@@ -29,15 +29,19 @@ public class VintageDiscoverer {
 
 	private static final IsPotentialJUnit4TestClass isPotentialJUnit4TestClass = new IsPotentialJUnit4TestClass();
 
+	// @formatter:off
+	private static final EngineDiscoveryRequestResolver<TestDescriptor> resolver = EngineDiscoveryRequestResolver.builder()
+			.withDefaultsForClassBasedTestEngines(isPotentialJUnit4TestClass)
+			.addSelectorResolver(context -> new ClassSelectorResolver(ClassFilter.of(context.getClassNameFilter(), isPotentialJUnit4TestClass)))
+			.addSelectorResolver(new MethodSelectorResolver())
+			.build();
+	// @formatter:on
+
 	public TestDescriptor discover(EngineDiscoveryRequest discoveryRequest, UniqueId uniqueId) {
 		EngineDescriptor engineDescriptor = new EngineDescriptor(uniqueId, "JUnit Vintage");
+		resolver.resolve(discoveryRequest, engineDescriptor);
 		RunnerTestDescriptorPostProcessor postProcessor = new RunnerTestDescriptorPostProcessor();
 		// @formatter:off
-		EngineDiscoveryRequestResolver.configure(discoveryRequest, engineDescriptor)
-				.withDefaultsForClassBasedTestEngines(isPotentialJUnit4TestClass)
-				.addSelectorResolverWithClassNameFilter(filter -> new ClassSelectorResolver(ClassFilter.of(filter, isPotentialJUnit4TestClass)))
-				.addSelectorResolver(new MethodSelectorResolver())
-				.resolve();
 		engineDescriptor.getChildren().stream()
 				.filter(RunnerTestDescriptor.class::isInstance)
 				.map(RunnerTestDescriptor.class::cast)

@@ -13,7 +13,7 @@ package org.junit.jupiter.engine.discovery;
 import static org.apiguardian.api.API.Status.INTERNAL;
 
 import org.apiguardian.api.API;
-import org.junit.jupiter.engine.config.JupiterConfiguration;
+import org.junit.jupiter.engine.descriptor.JupiterEngineDescriptor;
 import org.junit.jupiter.engine.discovery.predicates.IsTestClassWithTests;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.TestDescriptor;
@@ -31,19 +31,18 @@ import org.junit.platform.engine.support.discovery.EngineDiscoveryRequestResolve
 @API(status = INTERNAL, since = "5.0")
 public class DiscoverySelectorResolver {
 
-	private static final IsTestClassWithTests isTestClassWithTests = new IsTestClassWithTests();
+	// @formatter:off
+	private static final EngineDiscoveryRequestResolver<JupiterEngineDescriptor> resolver = EngineDiscoveryRequestResolver.<JupiterEngineDescriptor>builder()
+			.withDefaultsForClassBasedTestEngines(new IsTestClassWithTests())
+			.addSelectorResolver(context -> new ClassSelectorResolver(context.getClassNameFilter(), context.getEngineDescriptor().getConfiguration()))
+			.addSelectorResolver(context -> new MethodSelectorResolver(context.getEngineDescriptor().getConfiguration()))
+			.addTestDescriptorVisitor(context -> new MethodOrderingVisitor(context.getEngineDescriptor().getConfiguration()))
+			.addTestDescriptorVisitor(context -> TestDescriptor::prune)
+			.build();
+	// @formatter:on
 
-	public void resolveSelectors(EngineDiscoveryRequest request, JupiterConfiguration configuration,
-			TestDescriptor engineDescriptor) {
-		// @formatter:off
-		EngineDiscoveryRequestResolver.configure(request, engineDescriptor)
-				.withDefaultsForClassBasedTestEngines(isTestClassWithTests)
-				.addSelectorResolverWithClassNameFilter(filter -> new ClassSelectorResolver(filter, configuration))
-				.addSelectorResolver(new MethodSelectorResolver(configuration))
-				.addTestDescriptorVisitor(new MethodOrderingVisitor(configuration))
-				.addTestDescriptorVisitor(TestDescriptor::prune)
-				.resolve();
-		// @formatter:on
+	public void resolveSelectors(EngineDiscoveryRequest request, JupiterEngineDescriptor engineDescriptor) {
+		resolver.resolve(request, engineDescriptor);
 	}
 
 }
