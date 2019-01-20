@@ -31,7 +31,6 @@ import org.junit.runner.Runner;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.manipulation.Filterable;
 import org.junit.runner.manipulation.NoTestsRemainException;
-import org.junit.vintage.engine.discovery.RunnerDecorator;
 
 /**
  * @since 4.12
