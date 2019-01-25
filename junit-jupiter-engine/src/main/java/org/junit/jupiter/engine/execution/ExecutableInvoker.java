@@ -197,7 +197,7 @@ public class ExecutableInvoker {
 			if (matchingResolvers.size() > 1) {
 				// @formatter:off
 				String resolverNames = matchingResolvers.stream()
-						.map(resolver -> resolver.getClass().getName())
+						.map(resolver -> resolver.toString())
 						.collect(joining(", "));
 				// @formatter:on
 				throw new ParameterResolutionException(String.format(
